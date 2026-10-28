@@ -1,0 +1,36 @@
+<section class="page">
+  <h1>Bienvenue, {{ auth.nomAffiche() }}</h1>
+
+  <div class="entrees">
+    <a class="entree" routerLink="/patient/nouvelle-demande">
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title><h2>Nouvelle demande</h2></mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Demandez une consultation pour vous-même ou pour un proche.</p>
+        </mat-card-content>
+      </mat-card>
+    </a>
+
+    <a class="entree" routerLink="/patient/mes-demandes">
+      <mat-card appearance="outlined">
+        <mat-card-header>
+          <mat-card-title><h2>Mes demandes</h2></mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <p>Suivez l'état de vos demandes et consultez les réponses.</p>
+        </mat-card-content>
+      </mat-card>
+    </a>
+  </div>
+
+  <h2 class="titre-parcours">Comment ça se passe ?</h2>
+  <ol class="parcours">
+    <li>Vous faites une demande de consultation, pour vous ou pour un proche.</li>
+    <li>Un médecin senior étudie votre demande.</li>
+    <li>
+      Il l'accepte et vous assigne un médecin, ou il la refuse en indiquant le motif du refus.
+    </li>
+  </ol>
+</section>

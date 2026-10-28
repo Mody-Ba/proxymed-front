@@ -1,0 +1,74 @@
+<section class="page">
+  <mat-card appearance="outlined" class="carte">
+    <mat-card-header>
+      <mat-card-title><h1>Nouvelle demande de consultation</h1></mat-card-title>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (erreur(); as message) {
+        <div class="alerte erreur" role="alert">
+          <p>{{ message }}</p>
+          @if (details().length) {
+            <ul>
+              @for (detail of details(); track detail) {
+                <li>{{ detail }}</li>
+              }
+            </ul>
+          }
+        </div>
+      }
+
+      <form [formGroup]="formulaire" (ngSubmit)="envoyer()" novalidate>
+        <mat-checkbox formControlName="pourProche" class="case-proche">
+          Cette demande concerne un proche
+        </mat-checkbox>
+
+        <mat-form-field appearance="outline">
+          <mat-label>{{ pourProche() ? 'Nom complet du proche' : 'Votre nom complet' }}</mat-label>
+          <input matInput type="text" formControlName="nomPatient" autocomplete="off" required />
+          @if (pourProche()) {
+            <mat-hint>La personne qui sera vue en consultation.</mat-hint>
+          }
+          @if (formulaire.controls.nomPatient.hasError('required')) {
+            <mat-error>Le nom du patient est obligatoire.</mat-error>
+          } @else if (formulaire.controls.nomPatient.hasError('maxlength')) {
+            <mat-error
+              >Le nom du patient ne doit pas dépasser {{ nomPatientMax }} caractères.</mat-error
+            >
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Motif de la demande</mat-label>
+          <textarea
+            matInput
+            formControlName="motif"
+            rows="6"
+            autocomplete="off"
+            required
+          ></textarea>
+          <mat-hint>Décrivez les symptômes ou la raison de la consultation.</mat-hint>
+          <mat-hint align="end" class="compteur">
+            {{ motifSaisi().length }} / {{ motifMax }}
+          </mat-hint>
+          @if (formulaire.controls.motif.hasError('required')) {
+            <mat-error>Le motif est obligatoire.</mat-error>
+          } @else if (formulaire.controls.motif.hasError('maxlength')) {
+            <mat-error>Le motif ne doit pas dépasser {{ motifMax }} caractères.</mat-error>
+          }
+        </mat-form-field>
+
+        <div class="actions">
+          <button mat-flat-button type="submit" [disabled]="enCours()">
+            @if (enCours()) {
+              <mat-spinner diameter="20" aria-label="Envoi en cours" />
+            } @else {
+              Envoyer la demande
+            }
+          </button>
+          <a mat-button routerLink="/patient">Annuler</a>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</section>

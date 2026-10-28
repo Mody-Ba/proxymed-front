@@ -1,10 +1,10 @@
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpContext, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { provideRouter, Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
 import { AuthService } from '../services/auth.service';
-import { authInterceptor } from './auth.interceptor';
+import { ACCES_REFUSE_GERE_PAR_LA_PAGE, authInterceptor } from './auth.interceptor';
 
 const CLE_SESSION = 'proxymed.session';
 
@@ -166,6 +166,34 @@ describe('authInterceptor', () => {
 
     expect(auth.estConnecte()).toBe(true);
     expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it('sur 403 marque ACCES_REFUSE_GERE_PAR_LA_PAGE : ni redirection ni deconnexion', () => {
+    configurer(true);
+    const url = `${environment.api.fiche1}/api/demandes-consultation/abc`;
+    let erreurRecue: unknown;
+    http
+      .get(url, { context: new HttpContext().set(ACCES_REFUSE_GERE_PAR_LA_PAGE, true) })
+      .subscribe({ error: (e) => (erreurRecue = e) });
+
+    controleur.expectOne(url).flush(null, { status: 403, statusText: 'Forbidden' });
+
+    expect(erreurRecue).toBeTruthy();
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+    expect(auth.estConnecte()).toBe(true);
+  });
+
+  it('sur 401 marque ACCES_REFUSE_GERE_PAR_LA_PAGE : deconnecte quand meme', () => {
+    configurer(true);
+    const url = `${environment.api.fiche1}/api/demandes-consultation/abc`;
+    http
+      .get(url, { context: new HttpContext().set(ACCES_REFUSE_GERE_PAR_LA_PAGE, true) })
+      .subscribe({ error: () => undefined });
+
+    controleur.expectOne(url).flush(null, { status: 401, statusText: 'Unauthorized' });
+
+    expect(auth.estConnecte()).toBe(false);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/connexion');
   });
 
   it("ne reagit pas aux 401/403 d'une autre adresse", () => {
