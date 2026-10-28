@@ -1,4 +1,4 @@
-// Styles communs aux formulaires de connexion et de changement de mot de passe.
+// Styles communs aux formulaires d'authentification (connexion, inscription, verification...).
 .carte {
   max-width: 420px;
   margin: 3rem auto;
@@ -53,4 +53,25 @@ mat-spinner {
   margin: 0 0 0.5rem;
   color: var(--mat-sys-on-surface-variant);
   font-size: 0.9rem;
+}
+
+.lien-bas {
+  margin: 1.5rem 0 0;
+  text-align: center;
+}
+
+.renvoi {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+
+  .aide {
+    margin: 0;
+    text-align: center;
+  }
+}
+
+.bouton-visibilite {
+  margin-right: 0.25rem;
 }

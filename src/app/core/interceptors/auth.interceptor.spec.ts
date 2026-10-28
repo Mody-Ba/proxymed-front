@@ -91,18 +91,16 @@ describe('authInterceptor', () => {
     let erreurRecue: unknown;
     http.get(url).subscribe({ error: (e) => (erreurRecue = e) });
 
-    controleur
-      .expectOne(url)
-      .flush(
-        {
-          horodatage: '',
-          status: 401,
-          erreur: 'Non authentifie',
-          message: 'Badge invalide ou expire',
-          details: [],
-        },
-        { status: 401, statusText: 'Unauthorized' },
-      );
+    controleur.expectOne(url).flush(
+      {
+        horodatage: '',
+        status: 401,
+        erreur: 'Non authentifie',
+        message: 'Badge invalide ou expire',
+        details: [],
+      },
+      { status: 401, statusText: 'Unauthorized' },
+    );
 
     expect(erreurRecue).toBeTruthy();
     expect(auth.estConnecte()).toBe(false);
@@ -116,18 +114,16 @@ describe('authInterceptor', () => {
     const url = `${environment.api.fiche2}/api/suivis`;
     http.get(url).subscribe({ error: () => undefined });
 
-    controleur
-      .expectOne(url)
-      .flush(
-        {
-          horodatage: '',
-          status: 403,
-          erreur: 'Acces refuse',
-          message: 'Votre role ne permet pas',
-          details: [],
-        },
-        { status: 403, statusText: 'Forbidden' },
-      );
+    controleur.expectOne(url).flush(
+      {
+        horodatage: '',
+        status: 403,
+        erreur: 'Acces refuse',
+        message: 'Votre role ne permet pas',
+        details: [],
+      },
+      { status: 403, statusText: 'Forbidden' },
+    );
 
     expect(router.navigateByUrl).toHaveBeenCalledWith('/acces-refuse');
     expect(auth.estConnecte()).toBe(true);
@@ -138,19 +134,37 @@ describe('authInterceptor', () => {
     const url = `${environment.api.auth}/api/auth/connexion`;
     http.post(url, {}).subscribe({ error: () => undefined });
 
+    controleur.expectOne(url).flush(
+      {
+        horodatage: '',
+        status: 401,
+        erreur: 'Authentification echouee',
+        message: 'Identifiants invalides',
+        details: [],
+      },
+      { status: 401, statusText: 'Unauthorized' },
+    );
+
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
+  });
+
+  it.each(
+    ['inscription', 'verification', 'renvoyer-code'].flatMap((chemin) =>
+      [400, 401, 403, 409, 429, 503].map((status) => [chemin, status] as const),
+    ),
+  )('laisse la page afficher les erreurs de /%s (%i) sans deconnecter', (chemin, status) => {
+    configurer(true);
+    const url = `${environment.api.auth}/api/auth/${chemin}`;
+    http.post(url, {}).subscribe({ error: () => undefined });
+
     controleur
       .expectOne(url)
       .flush(
-        {
-          horodatage: '',
-          status: 401,
-          erreur: 'Authentification echouee',
-          message: 'Identifiants invalides',
-          details: [],
-        },
-        { status: 401, statusText: 'Unauthorized' },
+        { horodatage: '', status, erreur: 'Erreur', message: 'Message du serveur', details: [] },
+        { status, statusText: '' },
       );
 
+    expect(auth.estConnecte()).toBe(true);
     expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 

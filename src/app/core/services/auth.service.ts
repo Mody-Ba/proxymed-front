@@ -113,6 +113,11 @@ export class AuthService implements OnDestroy {
     void this.router.navigateByUrl('/connexion');
   }
 
+  /** Message a afficher a la prochaine ouverture de /connexion (compte cree...). */
+  preparerMessageConnexion(message: string): void {
+    this._messageConnexion.set(message);
+  }
+
   /** Lu une fois par la page de connexion. */
   consommerMessageConnexion(): string | null {
     const message = this._messageConnexion();
