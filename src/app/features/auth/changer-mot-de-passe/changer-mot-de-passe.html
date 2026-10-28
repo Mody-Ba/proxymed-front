@@ -1,0 +1,93 @@
+<mat-card class="carte">
+  <mat-card-header>
+    <mat-card-title><h1>Changer le mot de passe</h1></mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (auth.motDePasseTemporaire()) {
+      <p class="alerte information" role="status">
+        Votre mot de passe est temporaire. Choisissez un nouveau mot de passe pour accéder à
+        l'application.
+      </p>
+    }
+    @if (erreur(); as message) {
+      <div class="alerte erreur" role="alert">
+        <p>{{ message }}</p>
+        @if (details().length) {
+          <ul>
+            @for (detail of details(); track detail) {
+              <li>{{ detail }}</li>
+            }
+          </ul>
+        }
+      </div>
+    }
+
+    <form [formGroup]="formulaire" (ngSubmit)="changer()" novalidate>
+      <mat-form-field appearance="outline">
+        <mat-label>Mot de passe actuel</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="ancienMotDePasse"
+          autocomplete="current-password"
+          required
+        />
+        @if (formulaire.controls.ancienMotDePasse.hasError('required')) {
+          <mat-error>Le mot de passe actuel est obligatoire.</mat-error>
+        } @else if (formulaire.controls.ancienMotDePasse.hasError('maxlength')) {
+          <mat-error>Le mot de passe ne doit pas dépasser 72 caractères.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nouveau mot de passe</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="nouveauMotDePasse"
+          autocomplete="new-password"
+          required
+        />
+        <mat-hint>Entre 8 et 72 caractères.</mat-hint>
+        @if (formulaire.controls.nouveauMotDePasse.hasError('required')) {
+          <mat-error>Le nouveau mot de passe est obligatoire.</mat-error>
+        } @else if (
+          formulaire.controls.nouveauMotDePasse.hasError('minlength') ||
+          formulaire.controls.nouveauMotDePasse.hasError('maxlength')
+        ) {
+          <mat-error>Le nouveau mot de passe doit contenir entre 8 et 72 caractères.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Confirmation du nouveau mot de passe</mat-label>
+        <input
+          matInput
+          type="password"
+          formControlName="confirmation"
+          autocomplete="new-password"
+          required
+        />
+        @if (formulaire.controls.confirmation.hasError('required')) {
+          <mat-error>La confirmation est obligatoire.</mat-error>
+        }
+      </mat-form-field>
+      @if (
+        formulaire.hasError('confirmationDifferente') && formulaire.controls.confirmation.touched
+      ) {
+        <p class="alerte erreur" role="alert">
+          La confirmation ne correspond pas au nouveau mot de passe.
+        </p>
+      }
+
+      <button mat-flat-button type="submit" [disabled]="enCours()">
+        @if (enCours()) {
+          <mat-spinner diameter="20" aria-label="Enregistrement en cours" />
+        } @else {
+          Changer le mot de passe
+        }
+      </button>
+    </form>
+  </mat-card-content>
+</mat-card>
