@@ -9,12 +9,20 @@ import {
 } from '@angular/router';
 import { Role } from '../models/role.model';
 import { AuthService } from '../services/auth.service';
-import { authGuard, connecteGuard, inviteGuard, roleGuard } from './auth.guards';
+import { InscriptionEnCours, InscriptionService } from '../services/inscription.service';
+import {
+  authGuard,
+  connecteGuard,
+  inscriptionEnCoursGuard,
+  inviteGuard,
+  roleGuard,
+} from './auth.guards';
 
 describe('gardes', () => {
   const connecte = signal(false);
   const role = signal<Role | null>(null);
   const motDePasseTemporaire = signal(false);
+  const inscriptionEnCours = signal<InscriptionEnCours | null>(null);
 
   const authFactice = {
     estConnecte: computed(() => connecte()),
@@ -38,7 +46,11 @@ describe('gardes', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      providers: [provideRouter([]), { provide: AuthService, useValue: authFactice }],
+      providers: [
+        provideRouter([]),
+        { provide: AuthService, useValue: authFactice },
+        { provide: InscriptionService, useValue: { enCours: inscriptionEnCours } },
+      ],
     });
   });
 
@@ -102,5 +114,17 @@ describe('gardes', () => {
   it('inviteGuard renvoie un compte connecte vers son accueil', () => {
     etat(true, 'MEDECIN_SENIOR');
     expect(executer(inviteGuard)).toBe('/senior');
+  });
+
+  describe('inscriptionEnCoursGuard', () => {
+    it("renvoie vers /inscription quand aucune inscription n'est en cours", () => {
+      inscriptionEnCours.set(null);
+      expect(executer(inscriptionEnCoursGuard)).toBe('/inscription');
+    });
+
+    it('laisse afficher /verification pendant une inscription', () => {
+      inscriptionEnCours.set({ email: 'patient@proxymed.fr', renvoiPossibleLe: Date.now() });
+      expect(executer(inscriptionEnCoursGuard)).toBe(true);
+    });
   });
 });

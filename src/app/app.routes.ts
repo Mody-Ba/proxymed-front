@@ -1,6 +1,12 @@
 import { inject } from '@angular/core';
 import { Routes } from '@angular/router';
-import { authGuard, connecteGuard, inviteGuard, roleGuard } from './core/guards/auth.guards';
+import {
+  authGuard,
+  connecteGuard,
+  inscriptionEnCoursGuard,
+  inviteGuard,
+  roleGuard,
+} from './core/guards/auth.guards';
 import { AuthService } from './core/services/auth.service';
 
 /*
@@ -18,6 +24,20 @@ export const routes: Routes = [
     title: 'Connexion · PROXYMED',
     canActivate: [inviteGuard],
     loadComponent: () => import('./features/auth/connexion/connexion').then((m) => m.Connexion),
+  },
+  {
+    path: 'inscription',
+    title: 'Créer un compte · PROXYMED',
+    canActivate: [inviteGuard],
+    loadComponent: () =>
+      import('./features/auth/inscription/inscription').then((m) => m.Inscription),
+  },
+  {
+    path: 'verification',
+    title: 'Vérification de l’adresse e-mail · PROXYMED',
+    canActivate: [inviteGuard, inscriptionEnCoursGuard],
+    loadComponent: () =>
+      import('./features/auth/verification/verification').then((m) => m.Verification),
   },
   {
     path: 'changer-mot-de-passe',

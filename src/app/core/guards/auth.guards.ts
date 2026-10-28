@@ -2,6 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router, UrlTree } from '@angular/router';
 import { Role } from '../models/role.model';
 import { AuthService } from '../services/auth.service';
+import { InscriptionService } from '../services/inscription.service';
 
 /*
  * Ces gardes servent seulement a l'affichage (ne pas montrer une page inutile).
@@ -40,8 +41,12 @@ export const connecteGuard: CanActivateFn = () => {
   return auth.estConnecte() ? true : inject(Router).parseUrl('/connexion');
 };
 
-/** Page de connexion : un compte deja connecte est renvoye vers son accueil. */
+/** Pages publiques (connexion, inscription) : un compte deja connecte est renvoye vers son accueil. */
 export const inviteGuard: CanActivateFn = () => {
   const auth = inject(AuthService);
   return auth.estConnecte() ? inject(Router).parseUrl(auth.urlAccueil()) : true;
 };
+
+/** Page /verification : sans inscription en cours (rechargement, acces direct), retour a /inscription. */
+export const inscriptionEnCoursGuard: CanActivateFn = () =>
+  inject(InscriptionService).enCours() ? true : inject(Router).parseUrl('/inscription');

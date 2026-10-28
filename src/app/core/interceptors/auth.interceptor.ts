@@ -11,8 +11,16 @@ const ORIGINES_PROXYMED = new Set(
   Object.values(environment.api).map((adresse) => new URL(adresse).origin),
 );
 
-/** Sur la connexion, 401 = identifiants faux et 403 = compte inactif : la page affiche le message. */
-const URL_CONNEXION = `${environment.api.auth}/api/auth/connexion`;
+/**
+ * Appels publics : aucune session en jeu, la page affiche le message du serveur.
+ * Sur la connexion, 401 = identifiants faux et 403 = compte inactif ; un 401/403 de
+ * l'inscription ne doit pas non plus deconnecter ni renvoyer vers /acces-refuse.
+ */
+const URLS_PUBLIQUES = new Set(
+  ['connexion', 'inscription', 'verification', 'renvoyer-code'].map(
+    (chemin) => `${environment.api.auth}/api/auth/${chemin}`,
+  ),
+);
 
 const MESSAGE_SESSION_INVALIDE = 'Votre session n’est plus valide. Veuillez vous reconnecter.';
 
@@ -42,7 +50,7 @@ export const authInterceptor: HttpInterceptorFn = (requete, suivant) => {
 
   return suivant(requeteAvecBadge).pipe(
     catchError((erreur: unknown) => {
-      if (erreur instanceof HttpErrorResponse && requete.url !== URL_CONNEXION) {
+      if (erreur instanceof HttpErrorResponse && !URLS_PUBLIQUES.has(requete.url)) {
         if (erreur.status === 401) {
           auth.deconnexion(messageErreur(erreur, MESSAGE_SESSION_INVALIDE));
         } else if (erreur.status === 403) {
