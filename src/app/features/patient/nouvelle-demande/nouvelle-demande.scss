@@ -1,0 +1,28 @@
+.carte {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.case-proche {
+  margin-left: -8px;
+}
+
+.compteur {
+  white-space: nowrap;
+}
+
+button[type='submit'] {
+  min-height: 40px;
+  min-width: 180px;
+}
+
+mat-spinner {
+  margin: 0 auto;
+}

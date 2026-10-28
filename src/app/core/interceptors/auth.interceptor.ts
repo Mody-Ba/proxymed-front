@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
+import { HttpContextToken, HttpErrorResponse, HttpInterceptorFn } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
@@ -21,6 +21,12 @@ const URLS_PUBLIQUES = new Set(
     (chemin) => `${environment.api.auth}/api/auth/${chemin}`,
   ),
 );
+
+/**
+ * A poser sur un appel dont la page affiche elle-meme le 403 (ex. detail d'une demande qui
+ * n'appartient pas au compte). Le 401 deconnecte toujours.
+ */
+export const ACCES_REFUSE_GERE_PAR_LA_PAGE = new HttpContextToken<boolean>(() => false);
 
 const MESSAGE_SESSION_INVALIDE = 'Votre session n’est plus valide. Veuillez vous reconnecter.';
 
@@ -53,7 +59,7 @@ export const authInterceptor: HttpInterceptorFn = (requete, suivant) => {
       if (erreur instanceof HttpErrorResponse && !URLS_PUBLIQUES.has(requete.url)) {
         if (erreur.status === 401) {
           auth.deconnexion(messageErreur(erreur, MESSAGE_SESSION_INVALIDE));
-        } else if (erreur.status === 403) {
+        } else if (erreur.status === 403 && !requete.context.get(ACCES_REFUSE_GERE_PAR_LA_PAGE)) {
           void router.navigateByUrl('/acces-refuse');
         }
       }

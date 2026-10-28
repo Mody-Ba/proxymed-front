@@ -1,0 +1,54 @@
+.entete {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+
+  h1 {
+    margin: 0;
+  }
+}
+
+.tableau {
+  overflow-x: auto;
+  transition: opacity 150ms;
+
+  &.rafraichissement {
+    opacity: 0.6;
+  }
+}
+
+table {
+  width: 100%;
+}
+
+.ligne {
+  cursor: pointer;
+
+  &:hover,
+  &:focus-visible {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: -2px;
+  }
+}
+
+.vide {
+  padding: 2rem 1rem;
+  text-align: center;
+  border: 1px dashed var(--mat-sys-outline-variant);
+  border-radius: 12px;
+
+  p {
+    margin: 0 0 0.75rem;
+  }
+}
+
+.reessayer {
+  margin-top: 0.5rem;
+}

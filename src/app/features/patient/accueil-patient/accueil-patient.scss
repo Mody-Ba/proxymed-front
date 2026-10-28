@@ -1,0 +1,42 @@
+.entrees {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.entree {
+  color: inherit;
+  text-decoration: none;
+  border-radius: 12px;
+
+  mat-card {
+    height: 100%;
+    transition: background-color 150ms;
+  }
+
+  &:hover mat-card,
+  &:focus-visible mat-card {
+    background: var(--mat-sys-surface-container-high);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mat-sys-primary);
+    outline-offset: 2px;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 1.25rem;
+  }
+}
+
+.titre-parcours {
+  margin: 2rem 0 0.5rem;
+  font-size: 1.15rem;
+}
+
+.parcours {
+  margin: 0;
+  padding-left: 1.25rem;
+  line-height: 1.6;
+}

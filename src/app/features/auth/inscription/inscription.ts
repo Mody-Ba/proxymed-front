@@ -15,12 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { InscriptionService } from '../../../core/services/inscription.service';
 import { detailsErreur, messageErreur } from '../../../core/utils/erreur-http';
-
-/** Comme @NotBlank cote serveur : des espaces seuls ne forment pas un nom. */
-const nonVide: ValidatorFn = (controle: AbstractControl): ValidationErrors | null =>
-  typeof controle.value === 'string' && controle.value.length && !controle.value.trim()
-    ? { required: true }
-    : null;
+import { nonVide } from '../../../core/utils/validateurs';
 
 /** La confirmation doit reprendre le mot de passe. */
 const confirmationIdentique: ValidatorFn = (groupe: AbstractControl): ValidationErrors | null => {

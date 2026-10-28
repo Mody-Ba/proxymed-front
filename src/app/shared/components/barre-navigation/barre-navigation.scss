@@ -5,6 +5,20 @@
   letter-spacing: 0.05em;
 }
 
+.liens {
+  display: flex;
+  gap: 0.25rem;
+  margin-left: 1rem;
+
+  a {
+    color: inherit;
+  }
+
+  .actif {
+    background: color-mix(in srgb, currentColor 14%, transparent);
+  }
+}
+
 .espace {
   flex: 1;
 }
@@ -19,7 +33,23 @@
 }
 
 @media (max-width: 600px) {
-  .role {
+  mat-toolbar {
+    flex-wrap: wrap;
+    height: auto;
+    min-height: 56px;
+    padding-top: 0.25rem;
+    padding-bottom: 0.25rem;
+  }
+
+  .role,
+  .compte {
     display: none;
+  }
+
+  // Les liens passent sur une seconde ligne pour ne jamais deborder.
+  .liens {
+    order: 1;
+    width: 100%;
+    margin-left: -0.5rem;
   }
 }

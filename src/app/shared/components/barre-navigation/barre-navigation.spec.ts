@@ -1,0 +1,57 @@
+import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClientTesting } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { Role } from '../../../core/models/role.model';
+import { BarreNavigation } from './barre-navigation';
+
+const CLE_SESSION = 'proxymed.session';
+
+describe('BarreNavigation', () => {
+  function afficher(role: Role, motDePasseTemporaire = false): HTMLElement {
+    sessionStorage.setItem(
+      CLE_SESSION,
+      JSON.stringify({
+        badge: 'badge',
+        role,
+        email: 'compte@proxymed.fr',
+        expireLe: Date.now() + 3_600_000,
+        motDePasseTemporaire,
+      }),
+    );
+    TestBed.configureTestingModule({
+      imports: [BarreNavigation],
+      providers: [provideHttpClient(), provideHttpClientTesting(), provideRouter([])],
+    });
+    const fixture = TestBed.createComponent(BarreNavigation);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
+  }
+
+  beforeEach(() => sessionStorage.clear());
+  afterEach(() => sessionStorage.clear());
+
+  it('montre "Nouvelle demande" et "Mes demandes" au patient', () => {
+    const element = afficher('UTILISATEUR');
+    const liens = Array.from(element.querySelectorAll('.liens a')).map((a) => [
+      a.textContent!.trim(),
+      a.getAttribute('href'),
+    ]);
+
+    expect(liens).toEqual([
+      ['Nouvelle demande', '/patient/nouvelle-demande'],
+      ['Mes demandes', '/patient/mes-demandes'],
+    ]);
+  });
+
+  it.each(['MEDECIN_SENIOR', 'MEDECIN_JUNIOR', 'ADMIN'] as const)(
+    'ne montre pas les liens patient au role %s',
+    (role) => {
+      expect(afficher(role).querySelector('.liens')).toBeNull();
+    },
+  );
+
+  it('masque les liens tant que le mot de passe est temporaire', () => {
+    expect(afficher('UTILISATEUR', true).querySelector('.liens')).toBeNull();
+  });
+});

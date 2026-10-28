@@ -1,5 +1,23 @@
 <mat-toolbar color="primary">
   <a class="marque" [routerLink]="auth.urlAccueil()">PROXYMED</a>
+  @if (estPatient()) {
+    <nav class="liens" aria-label="Espace patient">
+      <a
+        mat-button
+        routerLink="/patient/nouvelle-demande"
+        routerLinkActive="actif"
+        ariaCurrentWhenActive="page"
+        >Nouvelle demande</a
+      >
+      <a
+        mat-button
+        routerLink="/patient/mes-demandes"
+        routerLinkActive="actif"
+        ariaCurrentWhenActive="page"
+        >Mes demandes</a
+      >
+    </nav>
+  }
   <span class="espace"></span>
   <span class="compte">
     {{ auth.nomAffiche() }}
