@@ -1,0 +1,11 @@
+<mat-toolbar color="primary">
+  <a class="marque" [routerLink]="auth.urlAccueil()">PROXYMED</a>
+  <span class="espace"></span>
+  <span class="compte">
+    {{ auth.nomAffiche() }}
+    @if (auth.role(); as role) {
+      <span class="role">· {{ libellesRole[role] }}</span>
+    }
+  </span>
+  <button mat-button type="button" (click)="auth.deconnexion()">Se déconnecter</button>
+</mat-toolbar>

@@ -1,12 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { AuthService } from './core/services/auth.service';
+import { BarreNavigation } from './shared/components/barre-navigation/barre-navigation';
 
 @Component({
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, BarreNavigation],
   selector: 'app-root',
   styleUrl: './app.scss',
   templateUrl: './app.html',
 })
 export class App {
-  protected readonly title = signal('proxymed-front');
+  protected readonly auth = inject(AuthService);
 }

@@ -1,0 +1,16 @@
+<mat-card class="carte">
+  <mat-card-header>
+    <mat-card-title
+      ><h1>{{ titre() }}</h1></mat-card-title
+    >
+  </mat-card-header>
+  <mat-card-content>
+    <p><strong>Compte :</strong> {{ auth.nomAffiche() }}</p>
+    @if (auth.role(); as role) {
+      <p><strong>Rôle :</strong> {{ libellesRole[role] }}</p>
+    }
+  </mat-card-content>
+  <mat-card-actions>
+    <button mat-flat-button type="button" (click)="auth.deconnexion()">Se déconnecter</button>
+  </mat-card-actions>
+</mat-card>
