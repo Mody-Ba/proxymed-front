@@ -4,6 +4,7 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
@@ -14,6 +15,7 @@ import {
   VALIDITE_CODE_MINUTES,
 } from '../../../core/services/inscription.service';
 import { detailsErreur, messageErreur } from '../../../core/utils/erreur-http';
+import { Encadre } from '../../../shared/components/encadre/encadre';
 
 export const MESSAGE_COMPTE_CREE = 'Votre compte est créé, vous pouvez vous connecter.';
 
@@ -24,12 +26,15 @@ export const MESSAGE_COMPTE_CREE = 'Votre compte est créé, vous pouvez vous co
     RouterLink,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    Encadre,
   ],
   templateUrl: './verification.html',
   styleUrl: '../auth-formulaire.scss',
+  host: { class: 'page-auth' },
 })
 export class Verification {
   private readonly auth = inject(AuthService);

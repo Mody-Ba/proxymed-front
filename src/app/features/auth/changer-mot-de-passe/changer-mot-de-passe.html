@@ -1,17 +1,24 @@
-<mat-card class="carte">
+<mat-card class="carte-auth" appearance="outlined">
   <mat-card-header>
-    <mat-card-title><h1>Changer le mot de passe</h1></mat-card-title>
+    <div class="en-tete-auth">
+      <p class="marque-auth">
+        <mat-icon fontIcon="lock_reset" aria-hidden="true" />Sécurité du compte
+      </p>
+      <h1>Changer le mot de passe</h1>
+    </div>
   </mat-card-header>
 
   <mat-card-content>
     @if (auth.motDePasseTemporaire()) {
-      <p class="alerte information" role="status">
-        Votre mot de passe est temporaire. Choisissez un nouveau mot de passe pour accéder à
-        l'application.
-      </p>
+      <app-encadre type="avertissement" role="status">
+        <p>
+          Votre mot de passe est temporaire. Choisissez un nouveau mot de passe pour accéder à
+          l'application.
+        </p>
+      </app-encadre>
     }
     @if (erreur(); as message) {
-      <div class="alerte erreur" role="alert">
+      <app-encadre type="erreur" role="alert">
         <p>{{ message }}</p>
         @if (details().length) {
           <ul>
@@ -20,12 +27,13 @@
             }
           </ul>
         }
-      </div>
+      </app-encadre>
     }
 
-    <form [formGroup]="formulaire" (ngSubmit)="changer()" novalidate>
+    <form class="formulaire" [formGroup]="formulaire" (ngSubmit)="changer()" novalidate>
       <mat-form-field appearance="outline">
         <mat-label>Mot de passe actuel</mat-label>
+        <mat-icon matPrefix fontIcon="lock_open" aria-hidden="true" />
         <input
           matInput
           type="password"
@@ -42,6 +50,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Nouveau mot de passe</mat-label>
+        <mat-icon matPrefix fontIcon="lock" aria-hidden="true" />
         <input
           matInput
           type="password"
@@ -62,6 +71,7 @@
 
       <mat-form-field appearance="outline">
         <mat-label>Confirmation du nouveau mot de passe</mat-label>
+        <mat-icon matPrefix fontIcon="lock" aria-hidden="true" />
         <input
           matInput
           type="password"
@@ -76,12 +86,12 @@
       @if (
         formulaire.hasError('confirmationDifferente') && formulaire.controls.confirmation.touched
       ) {
-        <p class="alerte erreur" role="alert">
-          La confirmation ne correspond pas au nouveau mot de passe.
-        </p>
+        <app-encadre type="erreur" role="alert" class="encadre-formulaire">
+          <p>La confirmation ne correspond pas au nouveau mot de passe.</p>
+        </app-encadre>
       }
 
-      <button mat-flat-button type="submit" [disabled]="enCours()">
+      <button mat-flat-button type="submit" class="bouton-principal" [disabled]="enCours()">
         @if (enCours()) {
           <mat-spinner diameter="20" aria-label="Enregistrement en cours" />
         } @else {

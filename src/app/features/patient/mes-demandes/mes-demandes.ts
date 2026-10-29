@@ -1,8 +1,9 @@
 import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTableModule } from '@angular/material/table';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -13,6 +14,9 @@ import {
 } from '../../../core/services/demande-consultation.service';
 import { messageErreur } from '../../../core/utils/erreur-http';
 import { PaginateurFrancais } from '../../../core/utils/paginateur-francais';
+import { Encadre } from '../../../shared/components/encadre/encadre';
+import { EntetePage } from '../../../shared/components/entete-page/entete-page';
+import { EtatVide } from '../../../shared/components/etat-vide/etat-vide';
 import { StatutDemande } from '../../../shared/components/statut-demande/statut-demande';
 
 @Component({
@@ -22,14 +26,18 @@ import { StatutDemande } from '../../../shared/components/statut-demande/statut-
     RouterLink,
     MatTableModule,
     MatPaginatorModule,
-    MatProgressSpinnerModule,
+    MatProgressBarModule,
     MatButtonModule,
+    MatIconModule,
     StatutDemande,
+    Encadre,
+    EntetePage,
+    EtatVide,
   ],
   // Fourni ici et non dans app.config : le paginateur reste hors du bundle initial.
   providers: [{ provide: MatPaginatorIntl, useClass: PaginateurFrancais }],
   templateUrl: './mes-demandes.html',
-  styleUrls: ['../patient.scss', './mes-demandes.scss'],
+  styleUrl: './mes-demandes.scss',
 })
 export class MesDemandes implements OnInit {
   private readonly demandes = inject(DemandeConsultationService);

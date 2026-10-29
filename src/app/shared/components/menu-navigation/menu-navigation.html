@@ -1,0 +1,37 @@
+<div class="compte">
+  <mat-icon fontIcon="account_circle" aria-hidden="true" />
+  <div class="textes">
+    <p class="nom">{{ auth.nomAffiche() }}</p>
+    @if (auth.role(); as role) {
+      <p class="role">{{ libellesRole[role] }}</p>
+    }
+  </div>
+</div>
+
+<nav aria-label="Menu principal">
+  <a
+    class="lien"
+    [routerLink]="auth.urlAccueil()"
+    routerLinkActive="actif"
+    [routerLinkActiveOptions]="{ exact: true }"
+    ariaCurrentWhenActive="page"
+    (click)="choisi.emit()"
+  >
+    <mat-icon fontIcon="home" aria-hidden="true" />Accueil
+  </a>
+  @for (lien of liens(); track lien.lien) {
+    <a
+      class="lien"
+      [routerLink]="lien.lien"
+      routerLinkActive="actif"
+      ariaCurrentWhenActive="page"
+      (click)="choisi.emit()"
+    >
+      <mat-icon [fontIcon]="lien.icone" aria-hidden="true" />{{ lien.libelle }}
+    </a>
+  }
+</nav>
+
+<button type="button" class="lien deconnexion" (click)="auth.deconnexion()">
+  <mat-icon fontIcon="logout" aria-hidden="true" />Se déconnecter
+</button>

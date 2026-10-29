@@ -1,27 +1,45 @@
-<section class="page">
-  <div class="entete">
-    <h1>Mes demandes</h1>
-    <a mat-flat-button routerLink="/patient/nouvelle-demande">Nouvelle demande</a>
-  </div>
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Mes demandes"
+    sousTitre="De la plus récente à la plus ancienne."
+    icone="list_alt"
+  >
+    <a mat-flat-button routerLink="/patient/nouvelle-demande">
+      <mat-icon fontIcon="add" aria-hidden="true" />Nouvelle demande
+    </a>
+  </app-entete-page>
 
   @if (information(); as info) {
-    <p class="alerte information" role="status">{{ info }}</p>
+    <app-encadre type="succes" role="status" class="encadre-haut">
+      <p>{{ info }}</p>
+    </app-encadre>
   }
 
+  <div class="zone-progression">
+    @if (enCours()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Chargement de vos demandes" />
+    }
+  </div>
+
   @if (erreur(); as message) {
-    <div class="alerte erreur" role="alert">
+    <app-encadre type="erreur" role="alert" class="encadre-haut">
       <p>{{ message }}</p>
-      <button mat-button type="button" class="reessayer" (click)="charger()">Réessayer</button>
-    </div>
+      <button mat-stroked-button type="button" class="reessayer" (click)="charger()">
+        <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+      </button>
+    </app-encadre>
   } @else if (enCours() && !elements().length) {
-    <div class="chargement">
-      <mat-spinner diameter="40" aria-label="Chargement de vos demandes" />
-    </div>
+    <p class="texte-aide chargement-texte">Chargement de vos demandes…</p>
   } @else if (!total()) {
-    <div class="vide">
-      <p>Vous n'avez aucune demande.</p>
-      <a mat-button routerLink="/patient/nouvelle-demande">Faire une demande</a>
-    </div>
+    <app-etat-vide
+      icone="inbox"
+      titre="Vous n'avez aucune demande."
+      texte="Faites une première demande de consultation, pour vous ou pour un proche."
+    >
+      <a mat-flat-button routerLink="/patient/nouvelle-demande">
+        <mat-icon fontIcon="note_add" aria-hidden="true" />Faire une demande
+      </a>
+    </app-etat-vide>
   } @else {
     <div class="tableau" [class.rafraichissement]="enCours()" [attr.aria-busy]="enCours()">
       <table mat-table [dataSource]="elements()">
@@ -32,24 +50,28 @@
 
         <ng-container matColumnDef="dateCreation">
           <th mat-header-cell *matHeaderCellDef scope="col">Date</th>
-          <td mat-cell *matCellDef="let demande">
+          <td mat-cell *matCellDef="let demande" data-libelle="Date" class="cellule-date">
             {{ demande.dateCreation | date: "dd/MM/yyyy 'à' HH:mm" }}
           </td>
         </ng-container>
 
         <ng-container matColumnDef="nomPatient">
           <th mat-header-cell *matHeaderCellDef scope="col">Patient</th>
-          <td mat-cell *matCellDef="let demande">{{ demande.nomPatient }}</td>
+          <td mat-cell *matCellDef="let demande" data-libelle="Patient" class="cellule-patient">
+            {{ demande.nomPatient }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="pourProche">
           <th mat-header-cell *matHeaderCellDef scope="col">Pour un proche</th>
-          <td mat-cell *matCellDef="let demande">{{ demande.pourProche ? 'Oui' : 'Non' }}</td>
+          <td mat-cell *matCellDef="let demande" data-libelle="Pour un proche">
+            {{ demande.pourProche ? 'Oui' : 'Non' }}
+          </td>
         </ng-container>
 
         <ng-container matColumnDef="statut">
           <th mat-header-cell *matHeaderCellDef scope="col">Statut</th>
-          <td mat-cell *matCellDef="let demande">
+          <td mat-cell *matCellDef="let demande" data-libelle="Statut">
             <app-statut-demande [statut]="demande.statut" />
           </td>
         </ng-container>

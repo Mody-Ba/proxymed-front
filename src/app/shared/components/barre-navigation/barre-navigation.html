@@ -1,29 +1,79 @@
-<mat-toolbar color="primary">
-  <a class="marque" [routerLink]="auth.urlAccueil()">PROXYMED</a>
-  @if (estPatient()) {
-    <nav class="liens" aria-label="Espace patient">
-      <a
-        mat-button
-        routerLink="/patient/nouvelle-demande"
-        routerLinkActive="actif"
-        ariaCurrentWhenActive="page"
-        >Nouvelle demande</a
-      >
-      <a
-        mat-button
-        routerLink="/patient/mes-demandes"
-        routerLinkActive="actif"
-        ariaCurrentWhenActive="page"
-        >Mes demandes</a
-      >
+<mat-toolbar>
+  @if (estTelephone()) {
+    <button
+      mat-icon-button
+      type="button"
+      class="bouton-menu"
+      aria-label="Ouvrir le menu de navigation"
+      [attr.aria-expanded]="menuOuvert()"
+      (click)="menuOuvert.set(true)"
+    >
+      <mat-icon fontIcon="menu" aria-hidden="true" />
+    </button>
+  }
+
+  <a class="marque" [routerLink]="auth.urlAccueil()" aria-label="PROXYMED, accueil">
+    <mat-icon fontIcon="local_hospital" aria-hidden="true" />
+    <span>PROXYMED</span>
+  </a>
+
+  @if (!estTelephone() && liens().length) {
+    <nav class="liens" aria-label="Menu principal">
+      @for (lien of liens(); track lien.lien) {
+        <a mat-button [routerLink]="lien.lien" routerLinkActive="actif" ariaCurrentWhenActive="page"
+          ><mat-icon [fontIcon]="lien.icone" aria-hidden="true" />{{ lien.libelle }}</a
+        >
+      }
     </nav>
   }
+
   <span class="espace"></span>
-  <span class="compte">
-    {{ auth.nomAffiche() }}
-    @if (auth.role(); as role) {
-      <span class="role">· {{ libellesRole[role] }}</span>
-    }
-  </span>
-  <button mat-button type="button" (click)="auth.deconnexion()">Se déconnecter</button>
+
+  @if (estTelephone()) {
+    <button
+      mat-icon-button
+      type="button"
+      [matMenuTriggerFor]="menuCompte"
+      aria-label="Menu du compte"
+    >
+      <mat-icon fontIcon="account_circle" aria-hidden="true" />
+    </button>
+  } @else {
+    <button
+      mat-button
+      type="button"
+      class="bouton-compte"
+      [matMenuTriggerFor]="menuCompte"
+      [attr.aria-label]="'Menu du compte : ' + auth.nomAffiche()"
+    >
+      <mat-icon fontIcon="account_circle" aria-hidden="true" />
+      <span class="nom">{{ auth.nomAffiche() }}</span>
+      <mat-icon iconPositionEnd fontIcon="expand_more" aria-hidden="true" />
+    </button>
+  }
 </mat-toolbar>
+
+<mat-menu #menuCompte="matMenu" xPosition="before">
+  <div class="entete-compte">
+    <p class="nom-compte">{{ auth.nomAffiche() }}</p>
+    @if (auth.role(); as role) {
+      <p class="role-compte">{{ libellesRole[role] }}</p>
+    }
+  </div>
+  <button mat-menu-item type="button" (click)="auth.deconnexion()">
+    <mat-icon fontIcon="logout" aria-hidden="true" />
+    <span>Se déconnecter</span>
+  </button>
+</mat-menu>
+
+<!-- Tiroir lateral du telephone : superpose a la page, il ne l'enveloppe pas. -->
+<mat-sidenav-container class="tiroir" [class.ouvert]="menuOuvert()">
+  <mat-sidenav
+    mode="over"
+    [opened]="menuOuvert()"
+    (closedStart)="menuOuvert.set(false)"
+    aria-label="Menu de navigation"
+  >
+    <app-menu-navigation (choisi)="menuOuvert.set(false)" />
+  </mat-sidenav>
+</mat-sidenav-container>

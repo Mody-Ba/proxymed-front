@@ -1,9 +1,40 @@
-.carte {
-  max-width: 480px;
-  margin: 3rem auto;
+.page-erreur {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: var(--pm-espace-8);
+  padding: var(--pm-espace-8) var(--pm-espace-4);
+  text-align: center;
+  border-radius: var(--pm-rayon);
+  background: var(--mat-sys-surface-container-low);
+}
+
+.icone-erreur {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 96px;
+  height: 96px;
+  margin-bottom: var(--pm-espace-4);
+  border-radius: 50%;
+  background: var(--mat-sys-error-container);
+  color: var(--mat-sys-on-error-container);
+
+  .mat-icon {
+    width: 56px;
+    height: 56px;
+    font-size: 56px;
+  }
 }
 
 h1 {
   margin: 0;
-  font-size: 1.5rem;
+  font: var(--mat-sys-headline-medium);
+}
+
+.texte {
+  max-width: 48ch;
+  margin: var(--pm-espace-2) 0 var(--pm-espace-6);
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-large);
 }

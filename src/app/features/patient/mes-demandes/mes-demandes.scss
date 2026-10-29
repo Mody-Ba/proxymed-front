@@ -1,18 +1,22 @@
-.entete {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+.encadre-haut {
+  margin: 0 0 var(--pm-espace-4);
+}
 
-  h1 {
-    margin: 0;
-  }
+// Hauteur reservee : la barre de progression ne decale pas le contenu.
+.zone-progression {
+  height: 4px;
+  margin-bottom: var(--pm-espace-2);
+}
+
+.chargement-texte {
+  text-align: center;
+  padding: var(--pm-espace-8) 0;
 }
 
 .tableau {
-  overflow-x: auto;
+  overflow: hidden;
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--pm-rayon) var(--pm-rayon) 0 0;
   transition: opacity 150ms;
 
   &.rafraichissement {
@@ -24,31 +28,87 @@ table {
   width: 100%;
 }
 
+th.mat-mdc-header-cell {
+  background: var(--mat-sys-surface-container);
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-title-small);
+}
+
+.cellule-date {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.cellule-patient {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
 .ligne {
   cursor: pointer;
+  transition: background-color 120ms;
 
-  &:hover,
-  &:focus-visible {
+  &:hover {
     background: var(--mat-sys-surface-container-high);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--mat-sys-primary);
-    outline-offset: -2px;
+    background: var(--mat-sys-surface-container-high);
+    outline: 3px solid var(--mat-sys-primary);
+    outline-offset: -3px;
   }
 }
 
-.vide {
-  padding: 2rem 1rem;
-  text-align: center;
-  border: 1px dashed var(--mat-sys-outline-variant);
-  border-radius: 12px;
-
-  p {
-    margin: 0 0 0.75rem;
-  }
+mat-paginator {
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-top: 0;
+  border-radius: 0 0 var(--pm-rayon) var(--pm-rayon);
 }
 
-.reessayer {
-  margin-top: 0.5rem;
+// Telephone : chaque demande devient une carte (libelle de colonne devant chaque valeur).
+@media (max-width: 599.98px) {
+  .tableau {
+    border: 0;
+    overflow: visible;
+  }
+
+  table,
+  tbody,
+  tr.ligne,
+  td.mat-mdc-cell {
+    display: block;
+  }
+
+  tr.mat-mdc-header-row {
+    display: none;
+  }
+
+  tr.ligne {
+    height: auto;
+    margin-bottom: var(--pm-espace-3);
+    padding: var(--pm-espace-2) 0;
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: var(--pm-rayon);
+  }
+
+  td.mat-mdc-cell {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--pm-espace-3);
+    padding: var(--pm-espace-1) var(--pm-espace-4);
+    border: 0;
+    text-align: right;
+
+    &::before {
+      content: attr(data-libelle);
+      color: var(--mat-sys-on-surface-variant);
+      font: var(--mat-sys-label-large);
+      text-align: left;
+    }
+  }
+
+  mat-paginator {
+    border: 0;
+  }
 }

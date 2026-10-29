@@ -1,0 +1,10 @@
+<span class="icone" aria-hidden="true">
+  <mat-icon [fontIcon]="icone()" aria-hidden="true" />
+</span>
+<p class="titre">{{ titre() }}</p>
+@if (texte(); as t) {
+  <p class="texte">{{ t }}</p>
+}
+<div class="actions-vide">
+  <ng-content />
+</div>

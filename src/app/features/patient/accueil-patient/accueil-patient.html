@@ -1,36 +1,60 @@
-<section class="page">
-  <h1>Bienvenue, {{ auth.nomAffiche() }}</h1>
+<section class="conteneur-page">
+  <app-entete-page
+    [titre]="'Bienvenue, ' + auth.nomAffiche()"
+    sousTitre="Demandez une consultation et suivez les réponses de l'équipe médicale."
+  />
 
   <div class="entrees">
     <a class="entree" routerLink="/patient/nouvelle-demande">
-      <mat-card appearance="outlined">
-        <mat-card-header>
-          <mat-card-title><h2>Nouvelle demande</h2></mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Demandez une consultation pour vous-même ou pour un proche.</p>
-        </mat-card-content>
-      </mat-card>
+      <span class="icone-entree" aria-hidden="true">
+        <mat-icon fontIcon="note_add" aria-hidden="true" />
+      </span>
+      <span class="textes">
+        <span class="titre-entree">Nouvelle demande</span>
+        <span class="texte-entree"
+          >Demandez une consultation pour vous-même ou pour un proche.</span
+        >
+      </span>
+      <mat-icon class="chevron" fontIcon="chevron_right" aria-hidden="true" />
     </a>
 
     <a class="entree" routerLink="/patient/mes-demandes">
-      <mat-card appearance="outlined">
-        <mat-card-header>
-          <mat-card-title><h2>Mes demandes</h2></mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <p>Suivez l'état de vos demandes et consultez les réponses.</p>
-        </mat-card-content>
-      </mat-card>
+      <span class="icone-entree" aria-hidden="true">
+        <mat-icon fontIcon="list_alt" aria-hidden="true" />
+      </span>
+      <span class="textes">
+        <span class="titre-entree">Mes demandes</span>
+        <span class="texte-entree">Suivez l'état de vos demandes et consultez les réponses.</span>
+      </span>
+      <mat-icon class="chevron" fontIcon="chevron_right" aria-hidden="true" />
     </a>
   </div>
 
   <h2 class="titre-parcours">Comment ça se passe ?</h2>
   <ol class="parcours">
-    <li>Vous faites une demande de consultation, pour vous ou pour un proche.</li>
-    <li>Un médecin senior étudie votre demande.</li>
     <li>
-      Il l'accepte et vous assigne un médecin, ou il la refuse en indiquant le motif du refus.
+      <span class="icone-etape" aria-hidden="true">
+        <mat-icon fontIcon="edit_note" aria-hidden="true" />
+      </span>
+      <span class="numero">Étape 1</span>
+      <span>Vous faites une demande de consultation, pour vous ou pour un proche.</span>
+    </li>
+    <li>
+      <span class="icone-etape" aria-hidden="true">
+        <mat-icon fontIcon="medical_services" aria-hidden="true" />
+      </span>
+      <span class="numero">Étape 2</span>
+      <span>Un médecin senior étudie votre demande.</span>
+    </li>
+    <li>
+      <span class="icone-etape" aria-hidden="true">
+        <mat-icon fontIcon="fact_check" aria-hidden="true" />
+      </span>
+      <span class="numero">Étape 3</span>
+      <span
+        >Il l'accepte et vous assigne un médecin, ou il la refuse en indiquant le motif du
+        refus.</span
+      >
     </li>
   </ol>
 </section>

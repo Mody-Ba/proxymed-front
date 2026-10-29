@@ -1,19 +1,26 @@
-<mat-card class="carte">
+<mat-card class="carte-auth" appearance="outlined">
   <mat-card-header>
-    <mat-card-title><h1>Vérifiez votre adresse e-mail</h1></mat-card-title>
+    <div class="en-tete-auth">
+      <p class="marque-auth"><mat-icon fontIcon="local_hospital" aria-hidden="true" />PROXYMED</p>
+      <h1>Vérifiez votre adresse e-mail</h1>
+    </div>
   </mat-card-header>
 
   <mat-card-content>
-    <p class="aide explication">
-      Un code à 6 chiffres a été envoyé à <strong class="email">{{ email() }}</strong
-      >. Il est valable {{ validiteMinutes }} minutes.
-    </p>
+    <app-encadre type="info" icone="mark_email_read">
+      <p class="explication">
+        Un code à 6 chiffres a été envoyé à <strong class="email">{{ email() }}</strong
+        >. Il est valable {{ validiteMinutes }} minutes.
+      </p>
+    </app-encadre>
 
     @if (information(); as info) {
-      <p class="alerte information" role="status">{{ info }}</p>
+      <app-encadre type="succes" role="status">
+        <p>{{ info }}</p>
+      </app-encadre>
     }
     @if (erreur(); as message) {
-      <div class="alerte erreur" role="alert">
+      <app-encadre type="erreur" role="alert">
         <p>{{ message }}</p>
         @if (details().length) {
           <ul>
@@ -22,15 +29,17 @@
             }
           </ul>
         }
-      </div>
+      </app-encadre>
     }
 
-    <form [formGroup]="formulaire" (ngSubmit)="valider()" novalidate>
+    <form class="formulaire" [formGroup]="formulaire" (ngSubmit)="valider()" novalidate>
       <mat-form-field appearance="outline">
         <mat-label>Code de vérification</mat-label>
+        <mat-icon matPrefix fontIcon="pin" aria-hidden="true" />
         <input
           matInput
           type="text"
+          class="champ-code"
           inputmode="numeric"
           pattern="[0-9]*"
           maxlength="6"
@@ -45,7 +54,7 @@
         }
       </mat-form-field>
 
-      <button mat-flat-button type="submit" [disabled]="enCours()">
+      <button mat-flat-button type="submit" class="bouton-principal" [disabled]="enCours()">
         @if (enCours()) {
           <mat-spinner diameter="20" aria-label="Vérification en cours" />
         } @else {
@@ -62,6 +71,9 @@
         (click)="renvoyer()"
         [disabled]="secondesAvantRenvoi() > 0 || renvoiEnCours()"
       >
+        @if (!renvoiEnCours()) {
+          <mat-icon fontIcon="refresh" aria-hidden="true" />
+        }
         @if (renvoiEnCours()) {
           <mat-spinner diameter="20" aria-label="Envoi du code en cours" />
         } @else {
@@ -69,7 +81,8 @@
         }
       </button>
       @if (secondesAvantRenvoi() > 0) {
-        <p class="aide compte-a-rebours">
+        <p class="texte-aide compte-a-rebours">
+          <mat-icon fontIcon="timer" aria-hidden="true" />
           Nouveau code possible dans {{ secondesAvantRenvoi() }} s.
         </p>
       }

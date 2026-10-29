@@ -1,21 +1,40 @@
+:host {
+  display: block;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+mat-toolbar {
+  gap: var(--pm-espace-2);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+}
+
 .marque {
-  color: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pm-espace-2);
+  padding: var(--pm-espace-1) var(--pm-espace-2);
+  border-radius: 8px;
+  color: var(--mat-sys-primary);
+  font: var(--mat-sys-title-medium);
+  font-weight: 700;
+  letter-spacing: 0.08em;
   text-decoration: none;
-  font-weight: 600;
-  letter-spacing: 0.05em;
 }
 
 .liens {
   display: flex;
-  gap: 0.25rem;
-  margin-left: 1rem;
+  gap: var(--pm-espace-1);
+  margin-left: var(--pm-espace-4);
 
   a {
-    color: inherit;
+    color: var(--mat-sys-on-surface-variant);
   }
 
   .actif {
-    background: color-mix(in srgb, currentColor 14%, transparent);
+    background: var(--mat-sys-secondary-container);
+    color: var(--mat-sys-on-secondary-container);
   }
 }
 
@@ -23,33 +42,46 @@
   flex: 1;
 }
 
-.compte {
-  font-size: 0.95rem;
-  margin-right: 1rem;
+.bouton-compte {
+  max-width: 280px;
+  color: var(--mat-sys-on-surface);
+
+  .nom {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }
 
-.role {
-  opacity: 0.8;
+.entete-compte {
+  max-width: 260px;
+  padding: var(--pm-espace-2) var(--pm-espace-4) var(--pm-espace-3);
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  p {
+    margin: 0;
+    overflow-wrap: anywhere;
+  }
 }
 
-@media (max-width: 600px) {
-  mat-toolbar {
-    flex-wrap: wrap;
-    height: auto;
-    min-height: 56px;
-    padding-top: 0.25rem;
-    padding-bottom: 0.25rem;
-  }
+.nom-compte {
+  font: var(--mat-sys-title-small);
+}
 
-  .role,
-  .compte {
-    display: none;
-  }
+.role-compte {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
 
-  // Les liens passent sur une seconde ligne pour ne jamais deborder.
-  .liens {
-    order: 1;
-    width: 100%;
-    margin-left: -0.5rem;
+// Le conteneur couvre l'ecran sans intercepter les clics tant que le tiroir est ferme.
+.tiroir {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: transparent;
+  pointer-events: none;
+
+  &.ouvert {
+    pointer-events: auto;
   }
 }

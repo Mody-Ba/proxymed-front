@@ -10,12 +10,14 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { InscriptionService } from '../../../core/services/inscription.service';
 import { detailsErreur, messageErreur } from '../../../core/utils/erreur-http';
 import { nonVide } from '../../../core/utils/validateurs';
+import { Encadre } from '../../../shared/components/encadre/encadre';
 
 /** La confirmation doit reprendre le mot de passe. */
 const confirmationIdentique: ValidatorFn = (groupe: AbstractControl): ValidationErrors | null => {
@@ -31,12 +33,15 @@ const confirmationIdentique: ValidatorFn = (groupe: AbstractControl): Validation
     RouterLink,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    Encadre,
   ],
   templateUrl: './inscription.html',
   styleUrl: '../auth-formulaire.scss',
+  host: { class: 'page-auth' },
 })
 export class Inscription {
   private readonly inscription = inject(InscriptionService);

@@ -87,9 +87,9 @@ describe('MesDemandes', () => {
 
   it('affiche un indicateur de chargement pendant la requete', () => {
     ouvrir();
-    expect(element.querySelector('mat-spinner')).not.toBeNull();
+    expect(element.querySelector('mat-progress-bar')).not.toBeNull();
     repondre(page([]));
-    expect(element.querySelector('mat-spinner')).toBeNull();
+    expect(element.querySelector('mat-progress-bar')).toBeNull();
   });
 
   it("affiche l'etat vide", () => {

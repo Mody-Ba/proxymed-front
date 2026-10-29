@@ -1,44 +1,37 @@
 .retour {
-  margin: 0 0 1rem -0.75rem;
+  margin: 0 0 var(--pm-espace-4) calc(-1 * var(--pm-espace-3));
 }
 
-h1 {
+.decision {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pm-espace-3);
+  margin-bottom: var(--pm-espace-4);
+}
+
+.libelle-decision {
   margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-large);
 }
 
-.champs {
+.grille {
   display: grid;
-  grid-template-columns: minmax(140px, max-content) 1fr;
-  gap: 0.75rem 1.5rem;
-  margin: 1rem 0 1.5rem;
-
-  dt {
-    font-weight: 500;
-    color: var(--mat-sys-on-surface-variant);
-  }
-
-  dd {
-    margin: 0;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--pm-espace-3);
 }
 
 .motif,
 .motif-refus p {
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
 }
 
-.motif-refus p + p {
-  margin-top: 0.25rem;
+.motif-refus {
+  margin-top: var(--pm-espace-4);
 }
 
-@media (max-width: 600px) {
-  .champs {
-    grid-template-columns: 1fr;
-    gap: 0.25rem;
-
-    dd {
-      margin-bottom: 0.75rem;
-    }
-  }
+.encadre-indisponible {
+  margin: 0 0 var(--pm-espace-4);
+  text-align: left;
 }
