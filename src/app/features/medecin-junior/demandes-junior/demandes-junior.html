@@ -1,0 +1,42 @@
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Demandes assignées"
+    sousTitre="Les demandes acceptées qu'un médecin senior vous a confiées."
+    icone="assignment_ind"
+  />
+
+  <div class="zone-progression">
+    @if (enCours()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Chargement de vos demandes" />
+    }
+  </div>
+
+  @if (erreur(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut">
+      <p>{{ message }}</p>
+      <button mat-stroked-button type="button" class="reessayer" (click)="charger()">
+        <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+      </button>
+    </app-encadre>
+  } @else if (enCours() && !elements().length) {
+    <p class="texte-aide chargement-texte">Chargement de vos demandes…</p>
+  } @else if (!total()) {
+    <app-etat-vide
+      icone="assignment_ind"
+      [titre]="messageVide"
+      texte="Les demandes qu'un médecin senior vous assignera apparaîtront ici."
+    />
+  } @else {
+    <app-tableau-demandes
+      [elements]="elements()"
+      [total]="total()"
+      [page]="page()"
+      [taille]="taille()"
+      [enCours]="enCours()"
+      legende="Demandes de consultation qui vous sont assignées."
+      libellePagination="Pagination de vos demandes"
+      (ouvrir)="ouvrir($event)"
+      (changerPage)="changerPage($event)"
+    />
+  }
+</section>

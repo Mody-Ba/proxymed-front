@@ -28,3 +28,27 @@ export function detailsErreur(erreur: unknown): string[] {
   const details = corpsServeur(erreur)?.details;
   return Array.isArray(details) ? details.filter((d): d is string => typeof d === 'string') : [];
 }
+
+export const MESSAGE_DEMANDE_ACCES_REFUSE = 'Vous n’avez pas accès à cette demande.';
+export const MESSAGE_DEMANDE_INTROUVABLE = 'Cette demande est introuvable.';
+
+/**
+ * Lecture du detail d'une demande. 403 / 404 (et 400 pour un identifiant mal forme) : message
+ * clair, sans detail technique.
+ */
+export function messageChargementDemande(erreur: unknown): string {
+  if (erreur instanceof HttpErrorResponse) {
+    if (erreur.status === 403) {
+      return MESSAGE_DEMANDE_ACCES_REFUSE;
+    }
+    if (erreur.status === 404 || erreur.status === 400) {
+      return MESSAGE_DEMANDE_INTROUVABLE;
+    }
+  }
+  return messageErreur(erreur, 'La demande n’a pas pu être chargée.');
+}
+
+/** 409 sur accepter / refuser : la demande n'est plus EN_ATTENTE. */
+export function estConflit(erreur: unknown): boolean {
+  return erreur instanceof HttpErrorResponse && erreur.status === 409;
+}

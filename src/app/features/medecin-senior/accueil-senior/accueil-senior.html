@@ -1,0 +1,35 @@
+<section class="conteneur-page">
+  <app-entete-page
+    [titre]="'Bienvenue, ' + auth.nomAffiche()"
+    sousTitre="Espace médecin senior : vous étudiez les demandes de consultation des patients."
+  />
+
+  <div class="entrees">
+    <app-entree-accueil
+      lien="/senior/demandes"
+      icone="pending_actions"
+      titre="Demandes en attente"
+      texte="Étudiez les nouvelles demandes et décidez de leur suite."
+    />
+  </div>
+
+  <h2 class="titre-role">Votre rôle</h2>
+  <ul class="role">
+    <li>
+      <mat-icon fontIcon="fact_check" aria-hidden="true" />
+      <span
+        >Vous lisez chaque demande en attente : patient, motif, demande faite pour un proche.</span
+      >
+    </li>
+    <li>
+      <mat-icon fontIcon="person_add" aria-hidden="true" />
+      <span
+        >Vous l'acceptez en l'assignant à un médecin junior, qui prendra le patient en charge.</span
+      >
+    </li>
+    <li>
+      <mat-icon fontIcon="block" aria-hidden="true" />
+      <span>Ou vous la refusez en indiquant un motif, que le patient pourra lire.</span>
+    </li>
+  </ul>
+</section>

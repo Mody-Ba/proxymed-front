@@ -1,0 +1,37 @@
+:host {
+  display: block;
+}
+
+.decision {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pm-espace-3);
+  margin-bottom: var(--pm-espace-4);
+}
+
+.libelle-decision {
+  margin: 0;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-label-large);
+}
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--pm-espace-3);
+}
+
+.nom-patient,
+.motif {
+  overflow-wrap: anywhere;
+}
+
+.motif,
+.motif-refus p {
+  white-space: pre-wrap;
+}
+
+.motif-refus {
+  margin-top: var(--pm-espace-4);
+}

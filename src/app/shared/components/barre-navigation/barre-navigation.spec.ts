@@ -44,12 +44,21 @@ describe('BarreNavigation', () => {
     ]);
   });
 
-  it.each(['MEDECIN_SENIOR', 'MEDECIN_JUNIOR', 'ADMIN'] as const)(
-    'ne montre pas les liens patient au role %s',
-    (role) => {
-      expect(afficher(role).querySelector('.liens')).toBeNull();
-    },
-  );
+  it.each([
+    ['MEDECIN_SENIOR', [['Demandes', '/senior/demandes']]],
+    ['MEDECIN_JUNIOR', [['Demandes assignées', '/junior/demandes']]],
+  ] as const)('montre au role %s ses seuls liens', (role, attendus) => {
+    const liens = Array.from(afficher(role).querySelectorAll('.liens a')).map((a) => [
+      a.textContent!.trim(),
+      a.getAttribute('href'),
+    ]);
+
+    expect(liens).toEqual(attendus);
+  });
+
+  it("ne montre aucun lien a l'administrateur pour l'instant", () => {
+    expect(afficher('ADMIN').querySelector('.liens')).toBeNull();
+  });
 
   it('masque les liens tant que le mot de passe est temporaire', () => {
     expect(afficher('UTILISATEUR', true).querySelector('.liens')).toBeNull();

@@ -1,0 +1,31 @@
+<section class="conteneur-page etroit">
+  <a mat-button routerLink="/junior/demandes" class="retour">
+    <mat-icon fontIcon="arrow_back" aria-hidden="true" />Retour aux demandes assignées
+  </a>
+
+  @if (enCours()) {
+    <div class="chargement">
+      <mat-spinner diameter="40" aria-label="Chargement de la demande" />
+    </div>
+  } @else if (erreur(); as texte) {
+    <app-entete-page titre="Demande de consultation" icone="description" />
+    <app-etat-vide icone="folder_off" titre="Demande indisponible">
+      <app-encadre type="erreur" role="alert" class="encadre-indisponible">{{ texte }}</app-encadre>
+      <a mat-flat-button routerLink="/junior/demandes">
+        <mat-icon fontIcon="assignment_ind" aria-hidden="true" />Retour à la liste
+      </a>
+    </app-etat-vide>
+  } @else if (demande(); as d) {
+    <app-entete-page
+      titre="Demande de consultation"
+      [sousTitre]="'Reçue le ' + (d.dateCreation | date: 'dd/MM/yyyy \'à\' HH:mm')"
+      icone="description"
+    />
+
+    <app-encadre type="info" icone="assignment_ind" class="info-assignation">
+      <p>Cette demande vous a été assignée par un médecin senior.</p>
+    </app-encadre>
+
+    <app-fiche-demande [demande]="d" />
+  }
+</section>

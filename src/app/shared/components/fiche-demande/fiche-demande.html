@@ -1,0 +1,39 @@
+@let d = demande();
+<div class="decision">
+  <p class="libelle-decision">Statut</p>
+  <div class="statut"><app-statut-demande [statut]="d.statut" /></div>
+</div>
+
+<div class="grille">
+  <app-carte-info [icone]="d.pourProche ? 'group' : 'person'" libelle="Patient">
+    <span class="nom-patient">{{ d.nomPatient }}</span>
+  </app-carte-info>
+
+  <app-carte-info icone="family_restroom" libelle="Pour un proche">
+    <span class="pour-proche">{{ d.pourProche ? 'Oui' : 'Non' }}</span>
+  </app-carte-info>
+
+  <app-carte-info icone="event" libelle="Date de la demande">
+    <span class="date-creation">{{ d.dateCreation | date: "dd/MM/yyyy 'à' HH:mm" }}</span>
+  </app-carte-info>
+
+  <app-carte-info icone="event_available" libelle="Date de la décision">
+    <span class="date-decision">
+      @if (d.dateDecision) {
+        {{ d.dateDecision | date: "dd/MM/yyyy 'à' HH:mm" }}
+      } @else {
+        Pas encore de décision
+      }
+    </span>
+  </app-carte-info>
+
+  <app-carte-info icone="notes" libelle="Motif de la demande" [large]="true">
+    <span class="motif">{{ d.motif }}</span>
+  </app-carte-info>
+</div>
+
+@if (d.statut === 'REFUSEE') {
+  <app-encadre type="erreur" icone="cancel" titre="Motif du refus" class="motif-refus">
+    <p>{{ d.motifRefus || 'Aucun motif indiqué.' }}</p>
+  </app-encadre>
+}

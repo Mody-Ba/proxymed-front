@@ -1,0 +1,30 @@
+<section class="conteneur-page">
+  <app-entete-page
+    [titre]="'Bienvenue, ' + auth.nomAffiche()"
+    sousTitre="Espace médecin junior : vous retrouvez les patients qu'un médecin senior vous a confiés."
+  />
+
+  <div class="entrees">
+    <app-entree-accueil
+      lien="/junior/demandes"
+      icone="assignment_ind"
+      titre="Demandes assignées"
+      texte="Consultez les demandes acceptées qui vous ont été assignées."
+    />
+  </div>
+
+  <h2 class="titre-role">Votre rôle</h2>
+  <ul class="role">
+    <li>
+      <mat-icon fontIcon="assignment_ind" aria-hidden="true" />
+      <span>Un médecin senior accepte une demande et vous l'assigne.</span>
+    </li>
+    <li>
+      <mat-icon fontIcon="visibility" aria-hidden="true" />
+      <span
+        >Vous consultez le détail de la demande : patient, motif, demande faite pour un
+        proche.</span
+      >
+    </li>
+  </ul>
+</section>

@@ -1,0 +1,42 @@
+// Le formulaire enveloppe le contenu et les actions sans casser la mise en page du dialogue.
+.formulaire-dialogue {
+  display: contents;
+}
+
+.contexte {
+  margin: 0 0 var(--pm-espace-4);
+  overflow-wrap: anywhere;
+}
+
+.encadre-dialogue {
+  margin: 0 0 var(--pm-espace-4);
+}
+
+.reessayer {
+  margin-top: var(--pm-espace-2);
+}
+
+.chargement-dialogue {
+  display: flex;
+  align-items: center;
+  gap: var(--pm-espace-3);
+  padding: var(--pm-espace-2) 0 var(--pm-espace-4);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.champ {
+  width: 100%;
+}
+
+.compteur.limite {
+  color: var(--mat-sys-error);
+}
+
+mat-dialog-actions {
+  flex-wrap: wrap;
+  gap: var(--pm-espace-2);
+}
+
+.bouton-principal {
+  min-width: 140px;
+}

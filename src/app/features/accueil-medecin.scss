@@ -1,0 +1,35 @@
+// Accueils des medecins senior et junior.
+.entrees {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: var(--pm-espace-4);
+}
+
+.titre-role {
+  margin: var(--pm-espace-8) 0 var(--pm-espace-4);
+  font: var(--mat-sys-title-large);
+}
+
+.role {
+  display: grid;
+  gap: var(--pm-espace-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--pm-espace-3);
+    padding: var(--pm-espace-4);
+    border: 1px solid var(--mat-sys-outline-variant);
+    border-radius: var(--pm-rayon);
+    background: var(--mat-sys-surface-container-lowest);
+    font: var(--mat-sys-body-medium);
+  }
+
+  .mat-icon {
+    flex-shrink: 0;
+    color: var(--mat-sys-primary);
+  }
+}

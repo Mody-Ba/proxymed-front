@@ -34,3 +34,19 @@ export interface DemandeConsultationResponse {
 /** Longueurs maximales, identiques aux @Size de DemandeConsultationRequest. */
 export const NOM_PATIENT_MAX = 200;
 export const MOTIF_MAX = 2000;
+
+/**
+ * PATCH /api/demandes-consultation/{id}/accepter (MEDECIN_SENIOR, seulement si EN_ATTENTE, sinon 409).
+ * Le senior qui accepte vient du badge : seul le junior choisi part dans le corps.
+ */
+export interface AcceptationDemandeRequest {
+  juniorId: string;
+}
+
+/** PATCH /api/demandes-consultation/{id}/refuser (MEDECIN_SENIOR, seulement si EN_ATTENTE, sinon 409). */
+export interface RefusDemandeRequest {
+  motifRefus: string;
+}
+
+/** Longueur maximale, identique au @Size de RefusDemandeRequest. */
+export const MOTIF_REFUS_MAX = 1000;
