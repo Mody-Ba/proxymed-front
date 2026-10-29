@@ -13,8 +13,9 @@ html {
   @include mat.theme(
     (
       color: (
-        // Sarcelle calme (#2e7d82) et bleu doux (#40679a), palettes generees dans
-        // _theme-colors.scss par "ng generate @angular/material:theme-color".
+        // Bleu marine de la Fiche 1 (#1f4e79) et bleu acier de ses bordures (#b0c0d4),
+        // palettes generees dans _theme-colors.scss par
+        // "ng generate @angular/material:theme-color".
         primary: palettes.$primary-palette,
         tertiary: palettes.$tertiary-palette,
         theme-type: color-scheme,
@@ -24,11 +25,23 @@ html {
     )
   );
 
-  // Barre d'application sobre : fond de surface, texte normal, separee par une bordure.
+  /*
+   * Identite de la Fiche 1. En clair, le principal est exactement son bleu marine (au lieu du
+   * ton 40 de la palette) ; en sombre, le ton 80 de la meme palette. Les bordures fines
+   * reprennent le bleu acier des tableaux de la fiche.
+   */
+  @include mat.theme-overrides(
+    (
+      primary: light-dark(#1f4e79, #a0cafc),
+      outline-variant: light-dark(#b0c0d4, #42474f),
+    )
+  );
+
+  // Barre d'application : bandeau bleu marine, comme les titres de section de la Fiche 1.
   @include mat.toolbar-overrides(
     (
-      container-background-color: var(--mat-sys-surface-container),
-      container-text-color: var(--mat-sys-on-surface),
+      container-background-color: var(--pm-bandeau-fond),
+      container-text-color: var(--pm-bandeau-texte),
     )
   );
   @include mat.sidenav-overrides(
@@ -38,13 +51,22 @@ html {
   );
 
   /*
-   * Couleurs des statuts absentes de Material 3 (succes, attente). Contrastes texte/fond
-   * verifies (WCAG AA >= 4.5:1) : attente 7.8 / 9.7, acceptee 7.9 / 9.4 (clair / sombre).
+   * Couleurs absentes de Material 3, toutes ici (clair, sombre). Contrastes verifies
+   * (WCAG AA : texte >= 4.5:1), dans l'ordre clair / sombre :
+   * - bandeau : texte 8.7 / 8.6, liens 6.7 / 6.5, lien actif 13.2 / 7.7 ;
+   * - attente 7.8 / 9.7 ; acceptee et actif (vert "eligible" de la Fiche 1) 5.5 / 9.4.
    */
+  --pm-bandeau-fond: light-dark(#1f4e79, #043e68);
+  --pm-bandeau-texte: light-dark(#ffffff, #d1e4ff);
+  --pm-bandeau-texte-attenue: light-dark(#d1e4ff, #a0cafc);
+  --pm-bandeau-actif-fond: light-dark(#d1e4ff, #a0cafc);
+  --pm-bandeau-actif-texte: light-dark(#001d35, #003257);
+  // En-tete des tableaux : fond bleu tres pale des tableaux de la Fiche 1.
+  --pm-tableau-entete: light-dark(#e8eef5, #1e2023);
   --pm-attente-fond: light-dark(#ffeccc, #4a2d00);
   --pm-attente-texte: light-dark(#6b3f00, #ffdcae);
-  --pm-succes-fond: light-dark(#d7f4dd, #113d20);
-  --pm-succes-texte: light-dark(#0f5223, #b4efc1);
+  --pm-succes-fond: light-dark(#e6f2e7, #113d20);
+  --pm-succes-texte: light-dark(#1b6e20, #b4efc1);
 
   // Espacements reguliers (multiples de 4 px).
   --pm-espace-1: 0.25rem;
@@ -55,6 +77,15 @@ html {
   --pm-espace-8: 2rem;
   --pm-largeur-contenu: 1040px;
   --pm-rayon: 12px;
+}
+
+// Boutons-icones du bandeau (menu, compte sur telephone) : meme couleur que son texte.
+.mat-toolbar {
+  @include mat.icon-button-overrides(
+    (
+      icon-color: var(--pm-bandeau-texte),
+    )
+  );
 }
 
 html,
