@@ -52,3 +52,8 @@ export function messageChargementDemande(erreur: unknown): string {
 export function estConflit(erreur: unknown): boolean {
   return erreur instanceof HttpErrorResponse && erreur.status === 409;
 }
+
+/** 503 du service d'authentification : l'e-mail (mot de passe temporaire) n'a pas pu partir. */
+export function estEchecEnvoiEmail(erreur: unknown): boolean {
+  return erreur instanceof HttpErrorResponse && erreur.status === 503;
+}

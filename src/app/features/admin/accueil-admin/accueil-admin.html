@@ -1,0 +1,47 @@
+<section class="conteneur-page">
+  <app-entete-page
+    [titre]="'Bienvenue, ' + auth.nomAffiche()"
+    sousTitre="Espace administrateur : vous gérez les comptes et l'accès à PROXYMED."
+  />
+
+  <app-encadre type="info" icone="shield" titre="Aucune donnée médicale" class="rappel">
+    <p>
+      L'administrateur gère les comptes : il n'a jamais accès aux demandes de consultation ni aux
+      fiches des patients.
+    </p>
+  </app-encadre>
+
+  <div class="entrees">
+    <app-entree-accueil
+      lien="/admin/comptes"
+      icone="manage_accounts"
+      titre="Gérer les comptes"
+      texte="Consultez les comptes, activez-les ou désactivez-les, réinitialisez un mot de passe."
+    />
+    <app-entree-accueil
+      lien="/admin/comptes/nouveau"
+      icone="person_add"
+      titre="Créer un médecin"
+      texte="Créez le compte d'un médecin junior ou senior ; il reçoit un mot de passe temporaire par courriel."
+    />
+  </div>
+
+  <h2 class="titre-role">Votre rôle</h2>
+  <ul class="role">
+    <li>
+      <mat-icon fontIcon="person_add" aria-hidden="true" />
+      <span>Vous créez les comptes des médecins juniors et seniors.</span>
+    </li>
+    <li>
+      <mat-icon fontIcon="person_off" aria-hidden="true" />
+      <span>Vous désactivez un compte qui ne doit plus se connecter, ou le réactivez.</span>
+    </li>
+    <li>
+      <mat-icon fontIcon="lock_reset" aria-hidden="true" />
+      <span
+        >Vous réinitialisez un mot de passe : un nouveau mot de passe temporaire part par courriel,
+        il n'est jamais affiché.</span
+      >
+    </li>
+  </ul>
+</section>

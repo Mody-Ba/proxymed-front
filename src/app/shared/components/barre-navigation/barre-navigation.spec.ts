@@ -56,8 +56,16 @@ describe('BarreNavigation', () => {
     expect(liens).toEqual(attendus);
   });
 
-  it("ne montre aucun lien a l'administrateur pour l'instant", () => {
-    expect(afficher('ADMIN').querySelector('.liens')).toBeNull();
+  it("montre a l'administrateur les comptes seulement, aucun lien medical", () => {
+    const liens = Array.from(afficher('ADMIN').querySelectorAll('.liens a')).map((a) => [
+      a.textContent!.trim(),
+      a.getAttribute('href'),
+    ]);
+
+    expect(liens).toEqual([
+      ['Comptes', '/admin/comptes'],
+      ['Créer un médecin', '/admin/comptes/nouveau'],
+    ]);
   });
 
   it('masque les liens tant que le mot de passe est temporaire', () => {

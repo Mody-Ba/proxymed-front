@@ -5,11 +5,12 @@ export interface LienNavigation {
   lien: string;
   /** Icone Material, decorative. */
   icone: string;
+  /** Actif seulement sur cette adresse exacte (pas sur ses sous-pages). */
+  exact?: boolean;
 }
 
 /**
  * Entrees du menu principal par role (affichage seulement : le serveur protege les donnees).
- * Les prochains ecrans (admin) ajoutent leurs entrees ici.
  */
 export const LIENS_PAR_ROLE: Record<Role, readonly LienNavigation[]> = {
   UTILISATEUR: [
@@ -20,5 +21,9 @@ export const LIENS_PAR_ROLE: Record<Role, readonly LienNavigation[]> = {
   MEDECIN_JUNIOR: [
     { libelle: 'Demandes assignées', lien: '/junior/demandes', icone: 'assignment_ind' },
   ],
-  ADMIN: [],
+  // L'administrateur ne voit aucun lien vers les donnees medicales.
+  ADMIN: [
+    { libelle: 'Comptes', lien: '/admin/comptes', icone: 'manage_accounts', exact: true },
+    { libelle: 'Créer un médecin', lien: '/admin/comptes/nouveau', icone: 'person_add' },
+  ],
 };

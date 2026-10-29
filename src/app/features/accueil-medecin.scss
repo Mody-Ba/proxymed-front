@@ -1,4 +1,4 @@
-// Accueils des medecins senior et junior.
+// Accueils des medecins senior et junior, et de l'administrateur.
 .entrees {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -32,4 +32,8 @@
     flex-shrink: 0;
     color: var(--mat-sys-primary);
   }
+}
+
+.rappel {
+  margin: 0 0 var(--pm-espace-6);
 }

@@ -1,23 +1,6 @@
-.tableau {
-  overflow: hidden;
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-radius: var(--pm-rayon) var(--pm-rayon) 0 0;
-  transition: opacity 150ms;
+@use '../../styles/tableau';
 
-  &.rafraichissement {
-    opacity: 0.6;
-  }
-}
-
-table {
-  width: 100%;
-}
-
-th.mat-mdc-header-cell {
-  background: var(--mat-sys-surface-container);
-  color: var(--mat-sys-on-surface-variant);
-  font: var(--mat-sys-title-small);
-}
+@include tableau.cadre;
 
 .cellule-date {
   white-space: nowrap;
@@ -41,59 +24,5 @@ th.mat-mdc-header-cell {
     background: var(--mat-sys-surface-container-high);
     outline: 3px solid var(--mat-sys-primary);
     outline-offset: -3px;
-  }
-}
-
-mat-paginator {
-  border: 1px solid var(--mat-sys-outline-variant);
-  border-top: 0;
-  border-radius: 0 0 var(--pm-rayon) var(--pm-rayon);
-}
-
-// Telephone : chaque demande devient une carte (libelle de colonne devant chaque valeur).
-@media (max-width: 599.98px) {
-  .tableau {
-    border: 0;
-    overflow: visible;
-  }
-
-  table,
-  tbody,
-  tr.ligne,
-  td.mat-mdc-cell {
-    display: block;
-  }
-
-  tr.mat-mdc-header-row {
-    display: none;
-  }
-
-  tr.ligne {
-    height: auto;
-    margin-bottom: var(--pm-espace-3);
-    padding: var(--pm-espace-2) 0;
-    border: 1px solid var(--mat-sys-outline-variant);
-    border-radius: var(--pm-rayon);
-  }
-
-  td.mat-mdc-cell {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--pm-espace-3);
-    padding: var(--pm-espace-1) var(--pm-espace-4);
-    border: 0;
-    text-align: right;
-
-    &::before {
-      content: attr(data-libelle);
-      color: var(--mat-sys-on-surface-variant);
-      font: var(--mat-sys-label-large);
-      text-align: left;
-    }
-  }
-
-  mat-paginator {
-    border: 0;
   }
 }

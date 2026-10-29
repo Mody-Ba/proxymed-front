@@ -1,0 +1,68 @@
+@use '../../../shared/styles/tableau';
+
+@include tableau.cadre;
+
+.encadre-haut {
+  margin: 0 0 var(--pm-espace-4);
+}
+
+.reessayer {
+  margin-top: var(--pm-espace-2);
+}
+
+.filtres {
+  display: block;
+  margin-bottom: var(--pm-espace-3);
+}
+
+.cellule-nom {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+.vous {
+  display: block;
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
+}
+
+.cellule-email {
+  overflow-wrap: anywhere;
+}
+
+.oui-non {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  .mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+    color: var(--mat-sys-on-surface-variant);
+  }
+
+  &.oui {
+    font-weight: 500;
+
+    .mat-icon {
+      color: var(--pm-attente-texte);
+    }
+  }
+}
+
+.cellule-actions {
+  white-space: nowrap;
+  text-align: right;
+}
+
+@media (max-width: 599.98px) {
+  .cellule-nom {
+    flex-wrap: wrap;
+  }
+
+  .cellule-nom .nom,
+  .cellule-nom .vous {
+    text-align: right;
+  }
+}

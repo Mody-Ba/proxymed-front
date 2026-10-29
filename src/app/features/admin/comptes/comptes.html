@@ -1,0 +1,159 @@
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Comptes"
+    sousTitre="Du plus récent au plus ancien. Activez, désactivez ou réinitialisez un mot de passe."
+    icone="manage_accounts"
+  >
+    <a mat-flat-button routerLink="/admin/comptes/nouveau">
+      <mat-icon fontIcon="person_add" aria-hidden="true" />Créer un médecin
+    </a>
+  </app-entete-page>
+
+  @if (information(); as info) {
+    <app-encadre
+      #zoneInformation
+      type="succes"
+      role="status"
+      tabindex="-1"
+      class="encadre-haut information"
+    >
+      <p>{{ info }}</p>
+    </app-encadre>
+  }
+
+  <mat-chip-listbox
+    #liste
+    class="filtres"
+    aria-label="Filtrer les comptes par rôle"
+    [value]="filtre()"
+    (change)="changerFiltre($event, liste)"
+  >
+    @for (option of options; track option.valeur) {
+      <mat-chip-option [value]="option.valeur">
+        <mat-icon matChipAvatar [fontIcon]="option.icone" aria-hidden="true" />{{ option.libelle }}
+      </mat-chip-option>
+    }
+  </mat-chip-listbox>
+
+  <div class="zone-progression">
+    @if (enCours()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Chargement des comptes" />
+    }
+  </div>
+
+  @if (erreur(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut">
+      <p>{{ message }}</p>
+      <button mat-stroked-button type="button" class="reessayer" (click)="charger()">
+        <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+      </button>
+    </app-encadre>
+  } @else if (enCours() && !elements().length) {
+    <p class="texte-aide chargement-texte">Chargement des comptes…</p>
+  } @else if (!total()) {
+    <app-etat-vide icone="group_off" [titre]="texteVide()" />
+  } @else {
+    <div class="tableau" [class.rafraichissement]="enCours()" [attr.aria-busy]="enCours()">
+      <table mat-table [dataSource]="elements()">
+        <caption class="cdk-visually-hidden">
+          Comptes PROXYMED, du plus récent au plus ancien.
+        </caption>
+
+        <ng-container matColumnDef="nomComplet">
+          <th mat-header-cell *matHeaderCellDef scope="col">Nom</th>
+          <td mat-cell *matCellDef="let compte" data-libelle="Nom" class="cellule-nom">
+            <span class="nom">{{ compte.nomComplet }}</span>
+            @if (estMonCompte(compte)) {
+              <span class="vous">{{ explicationPropreCompte }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="email">
+          <th mat-header-cell *matHeaderCellDef scope="col">Courriel</th>
+          <td mat-cell *matCellDef="let compte" data-libelle="Courriel" class="cellule-email">
+            {{ compte.email }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="role">
+          <th mat-header-cell *matHeaderCellDef scope="col">Rôle</th>
+          <td mat-cell *matCellDef="let compte" data-libelle="Rôle" class="cellule-role">
+            {{ libelleRole(compte) }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actif">
+          <th mat-header-cell *matHeaderCellDef scope="col">État</th>
+          <td mat-cell *matCellDef="let compte" data-libelle="État" class="cellule-etat">
+            <app-etat-compte [actif]="compte.actif" />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="motDePasseTemporaire">
+          <th mat-header-cell *matHeaderCellDef scope="col">Mot de passe temporaire en attente</th>
+          <td
+            mat-cell
+            *matCellDef="let compte"
+            data-libelle="Mot de passe temporaire"
+            class="cellule-temporaire"
+          >
+            <span class="oui-non" [class.oui]="compte.motDePasseTemporaire">
+              <mat-icon
+                [fontIcon]="compte.motDePasseTemporaire ? 'hourglass_top' : 'check'"
+                aria-hidden="true"
+              />{{ compte.motDePasseTemporaire ? 'Oui' : 'Non' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef scope="col">
+            <span class="cdk-visually-hidden">Actions</span>
+          </th>
+          <td mat-cell *matCellDef="let compte" data-libelle="Actions" class="cellule-actions">
+            @let bloque = compte.actif && estMonCompte(compte);
+            <button
+              mat-icon-button
+              type="button"
+              class="action-activation"
+              [disabled]="bloque"
+              [disabledInteractive]="bloque"
+              [attr.aria-label]="libelleActivation(compte)"
+              [matTooltip]="bloque ? explicationPropreCompte : libelleActivation(compte)"
+              (click)="ouvrirAction(compte, 'activation')"
+            >
+              <mat-icon
+                [fontIcon]="compte.actif ? 'person_off' : 'how_to_reg'"
+                aria-hidden="true"
+              />
+            </button>
+            <button
+              mat-icon-button
+              type="button"
+              class="action-reinitialisation"
+              [attr.aria-label]="'Réinitialiser le mot de passe de ' + compte.nomComplet"
+              matTooltip="Réinitialiser le mot de passe"
+              (click)="ouvrirAction(compte, 'reinitialisation')"
+            >
+              <mat-icon fontIcon="lock_reset" aria-hidden="true" />
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+        <tr mat-row *matRowDef="let compte; columns: colonnes"></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="total()"
+      [pageIndex]="page()"
+      [pageSize]="taille()"
+      [pageSizeOptions]="taillesPage"
+      [disabled]="enCours()"
+      (page)="changerPage($event)"
+      aria-label="Pagination des comptes"
+    />
+  }
+</section>
