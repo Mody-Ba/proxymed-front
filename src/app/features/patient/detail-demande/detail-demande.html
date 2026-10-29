@@ -1,68 +1,78 @@
-<section class="page">
-  <a mat-button routerLink="/patient/mes-demandes" class="retour">‹ Retour à mes demandes</a>
+<section class="conteneur-page etroit">
+  <a mat-button routerLink="/patient/mes-demandes" class="retour">
+    <mat-icon fontIcon="arrow_back" aria-hidden="true" />Retour à mes demandes
+  </a>
 
   @if (enCours()) {
     <div class="chargement">
       <mat-spinner diameter="40" aria-label="Chargement de la demande" />
     </div>
   } @else if (erreur(); as message) {
-    <div class="alerte erreur" role="alert">
-      <p>{{ message }}</p>
-    </div>
-    <a mat-flat-button routerLink="/patient/mes-demandes">Retour à la liste</a>
+    <app-entete-page titre="Demande de consultation" icone="description" />
+    <app-etat-vide icone="folder_off" titre="Demande indisponible">
+      <app-encadre type="erreur" role="alert" class="encadre-indisponible">{{
+        message
+      }}</app-encadre>
+      <a mat-flat-button routerLink="/patient/mes-demandes">
+        <mat-icon fontIcon="list_alt" aria-hidden="true" />Retour à la liste
+      </a>
+    </app-etat-vide>
   } @else if (demande(); as d) {
-    <mat-card appearance="outlined">
-      <mat-card-header>
-        <mat-card-title><h1>Demande de consultation</h1></mat-card-title>
-        <mat-card-subtitle>
-          Envoyée le {{ d.dateCreation | date: "dd/MM/yyyy 'à' HH:mm" }}
-        </mat-card-subtitle>
-      </mat-card-header>
+    <app-entete-page
+      titre="Demande de consultation"
+      [sousTitre]="'Envoyée le ' + (d.dateCreation | date: 'dd/MM/yyyy \'à\' HH:mm')"
+      icone="description"
+    />
 
-      <mat-card-content>
-        <dl class="champs">
-          <dt>Statut</dt>
-          <dd class="statut"><app-statut-demande [statut]="d.statut" /></dd>
+    <div class="decision">
+      <p class="libelle-decision">Statut</p>
+      <div class="statut"><app-statut-demande [statut]="d.statut" /></div>
+    </div>
 
-          <dt>Patient</dt>
-          <dd class="nom-patient">{{ d.nomPatient }}</dd>
+    <div class="grille">
+      <app-carte-info [icone]="d.pourProche ? 'group' : 'person'" libelle="Patient">
+        <span class="nom-patient">{{ d.nomPatient }}</span>
+      </app-carte-info>
 
-          <dt>Pour un proche</dt>
-          <dd class="pour-proche">{{ d.pourProche ? 'Oui' : 'Non' }}</dd>
+      <app-carte-info icone="family_restroom" libelle="Pour un proche">
+        <span class="pour-proche">{{ d.pourProche ? 'Oui' : 'Non' }}</span>
+      </app-carte-info>
 
-          <dt>Date de la demande</dt>
-          <dd>{{ d.dateCreation | date: "dd/MM/yyyy 'à' HH:mm" }}</dd>
+      <app-carte-info icone="event" libelle="Date de la demande">
+        {{ d.dateCreation | date: "dd/MM/yyyy 'à' HH:mm" }}
+      </app-carte-info>
 
-          <dt>Date de la décision</dt>
-          <dd class="date-decision">
-            @if (d.dateDecision) {
-              {{ d.dateDecision | date: "dd/MM/yyyy 'à' HH:mm" }}
-            } @else {
-              Pas encore de décision
-            }
-          </dd>
-
-          <dt>Motif</dt>
-          <dd class="motif">{{ d.motif }}</dd>
-        </dl>
-
-        @switch (d.statut) {
-          @case ('EN_ATTENTE') {
-            <p class="alerte information">Un médecin senior va étudier votre demande.</p>
+      <app-carte-info icone="event_available" libelle="Date de la décision">
+        <span class="date-decision">
+          @if (d.dateDecision) {
+            {{ d.dateDecision | date: "dd/MM/yyyy 'à' HH:mm" }}
+          } @else {
+            Pas encore de décision
           }
-          @case ('ACCEPTEE') {
-            <p class="alerte information">
-              Votre demande a été acceptée : un médecin vous a été assigné.
-            </p>
-          }
-          @case ('REFUSEE') {
-            <div class="alerte erreur motif-refus">
-              <p><strong>Motif du refus</strong></p>
-              <p>{{ d.motifRefus || 'Aucun motif indiqué.' }}</p>
-            </div>
-          }
-        }
-      </mat-card-content>
-    </mat-card>
+        </span>
+      </app-carte-info>
+
+      <app-carte-info icone="notes" libelle="Motif" [large]="true">
+        <span class="motif">{{ d.motif }}</span>
+      </app-carte-info>
+    </div>
+
+    @switch (d.statut) {
+      @case ('EN_ATTENTE') {
+        <app-encadre type="info" icone="schedule">
+          <p>Un médecin senior va étudier votre demande.</p>
+        </app-encadre>
+      }
+      @case ('ACCEPTEE') {
+        <app-encadre type="succes">
+          <p>Votre demande a été acceptée : un médecin vous a été assigné.</p>
+        </app-encadre>
+      }
+      @case ('REFUSEE') {
+        <app-encadre type="erreur" icone="cancel" titre="Motif du refus" class="motif-refus">
+          <p>{{ d.motifRefus || 'Aucun motif indiqué.' }}</p>
+        </app-encadre>
+      }
+    }
   }
 </section>

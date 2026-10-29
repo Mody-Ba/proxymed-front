@@ -1,77 +1,40 @@
-// Styles communs aux formulaires d'authentification (connexion, inscription, verification...).
-.carte {
-  max-width: 420px;
-  margin: 3rem auto;
+// Complements propres aux pages d'authentification ; la carte et le formulaire sont dans styles.scss.
+.en-tete-auth {
+  padding-bottom: var(--pm-espace-2);
 }
 
-h1 {
-  margin: 0;
-  font-size: 1.5rem;
-}
-
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-top: 1rem;
-}
-
-button[type='submit'] {
-  min-height: 40px;
-}
-
-mat-spinner {
-  margin: 0 auto;
-}
-
-.alerte {
-  margin: 1rem 0 0;
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
-
-  p {
-    margin: 0;
-  }
-
-  ul {
-    margin: 0.5rem 0 0;
-    padding-left: 1.25rem;
-  }
-}
-
-.erreur {
-  background: var(--mat-sys-error-container);
-  color: var(--mat-sys-on-error-container);
-}
-
-.information {
-  background: var(--mat-sys-secondary-container);
-  color: var(--mat-sys-on-secondary-container);
-}
-
-.aide {
-  margin: 0 0 0.5rem;
-  color: var(--mat-sys-on-surface-variant);
-  font-size: 0.9rem;
-}
-
-.lien-bas {
-  margin: 1.5rem 0 0;
-  text-align: center;
+.encadre-formulaire {
+  margin: 0 0 var(--pm-espace-3);
 }
 
 .renvoi {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
-  margin-top: 1rem;
+  align-items: stretch;
+  gap: var(--pm-espace-2);
+  margin-top: var(--pm-espace-4);
 
-  .aide {
-    margin: 0;
-    text-align: center;
+  .bouton-renvoi {
+    min-height: 44px;
   }
 }
 
-.bouton-visibilite {
-  margin-right: 0.25rem;
+.compte-a-rebours {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pm-espace-1);
+  margin: 0;
+
+  .mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.champ-code {
+  font-size: 1.25rem;
+  letter-spacing: 0.3em;
+  font-variant-numeric: tabular-nums;
 }

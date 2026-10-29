@@ -1,8 +1,30 @@
 :host {
-  display: block;
+  display: flex;
+  flex-direction: column;
   min-height: 100dvh;
 }
 
+// Meme hauteur que la barre d'application : rien ne bouge quand elle arrive.
+.barre-attente {
+  height: 64px;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+  background: var(--mat-sys-surface-container);
+}
+
 main {
-  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+  outline: none;
+
+  // L'element hote de chaque page (insere par le routeur) remplit la hauteur disponible.
+  > ::ng-deep :not(router-outlet) {
+    flex: 1 0 auto;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .barre-attente {
+    height: 56px;
+  }
 }

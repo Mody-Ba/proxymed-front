@@ -123,15 +123,18 @@ describe('Inscription', () => {
       element.querySelector<HTMLInputElement>('input[formcontrolname="motDePasse"]')!;
     const bouton = element.querySelector<HTMLButtonElement>('.bouton-visibilite')!;
     expect(champ().type).toBe('password');
+    expect(bouton.getAttribute('aria-label')).toBe('Afficher le mot de passe');
 
     bouton.click();
     fixture.detectChanges();
     expect(champ().type).toBe('text');
-    expect(bouton.textContent).toContain('Masquer');
+    expect(bouton.getAttribute('aria-label')).toBe('Masquer le mot de passe');
+    expect(bouton.getAttribute('aria-pressed')).toBe('true');
 
     bouton.click();
     fixture.detectChanges();
     expect(champ().type).toBe('password');
+    expect(bouton.getAttribute('aria-label')).toBe('Afficher le mot de passe');
   });
 
   it('envoie le formulaire, vide le mot de passe et ouvre /verification', async () => {

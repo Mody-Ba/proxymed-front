@@ -2,12 +2,16 @@ import { DatePipe } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, DestroyRef, inject, input, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
 import { DemandeConsultationResponse } from '../../../core/models/demande-consultation.model';
 import { DemandeConsultationService } from '../../../core/services/demande-consultation.service';
 import { messageErreur } from '../../../core/utils/erreur-http';
+import { CarteInfo } from '../../../shared/components/carte-info/carte-info';
+import { Encadre } from '../../../shared/components/encadre/encadre';
+import { EntetePage } from '../../../shared/components/entete-page/entete-page';
+import { EtatVide } from '../../../shared/components/etat-vide/etat-vide';
 import { StatutDemande } from '../../../shared/components/statut-demande/statut-demande';
 
 export const MESSAGE_ACCES_REFUSE = 'Vous n’avez pas accès à cette demande.';
@@ -18,13 +22,17 @@ export const MESSAGE_INTROUVABLE = 'Cette demande est introuvable.';
   imports: [
     DatePipe,
     RouterLink,
-    MatCardModule,
+    MatIconModule,
     MatButtonModule,
     MatProgressSpinnerModule,
     StatutDemande,
+    CarteInfo,
+    Encadre,
+    EntetePage,
+    EtatVide,
   ],
   templateUrl: './detail-demande.html',
-  styleUrls: ['../patient.scss', './detail-demande.scss'],
+  styleUrl: './detail-demande.scss',
 })
 export class DetailDemande implements OnInit {
   private readonly demandes = inject(DemandeConsultationService);

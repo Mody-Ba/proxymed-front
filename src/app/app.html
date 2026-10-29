@@ -1,6 +1,14 @@
+<a class="lien-evitement" href="#contenu">Aller au contenu</a>
+
 @if (auth.estConnecte()) {
-  <app-barre-navigation />
+  <!-- Barre, menu du compte et tiroir lateral charges a part : hors du bundle initial. -->
+  @defer (on immediate) {
+    <app-barre-navigation />
+  } @placeholder {
+    <div class="barre-attente" aria-hidden="true"></div>
+  }
 }
-<main>
+
+<main id="contenu" tabindex="-1">
   <router-outlet />
 </main>

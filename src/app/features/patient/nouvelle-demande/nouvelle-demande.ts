@@ -5,6 +5,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
@@ -12,6 +13,8 @@ import { MOTIF_MAX, NOM_PATIENT_MAX } from '../../../core/models/demande-consult
 import { DemandeConsultationService } from '../../../core/services/demande-consultation.service';
 import { detailsErreur, messageErreur } from '../../../core/utils/erreur-http';
 import { nonVide } from '../../../core/utils/validateurs';
+import { Encadre } from '../../../shared/components/encadre/encadre';
+import { EntetePage } from '../../../shared/components/entete-page/entete-page';
 
 export const MESSAGE_DEMANDE_ENVOYEE = 'Votre demande a été envoyée.';
 
@@ -22,13 +25,16 @@ export const MESSAGE_DEMANDE_ENVOYEE = 'Votre demande a été envoyée.';
     RouterLink,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatCheckboxModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    Encadre,
+    EntetePage,
   ],
   templateUrl: './nouvelle-demande.html',
-  styleUrls: ['../patient.scss', './nouvelle-demande.scss'],
+  styleUrl: './nouvelle-demande.scss',
 })
 export class NouvelleDemande {
   private readonly demandes = inject(DemandeConsultationService);

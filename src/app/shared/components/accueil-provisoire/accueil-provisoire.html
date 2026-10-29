@@ -1,16 +1,20 @@
-<mat-card class="carte">
-  <mat-card-header>
-    <mat-card-title
-      ><h1>{{ titre() }}</h1></mat-card-title
-    >
-  </mat-card-header>
-  <mat-card-content>
-    <p><strong>Compte :</strong> {{ auth.nomAffiche() }}</p>
+<section class="conteneur-page etroit">
+  <app-entete-page
+    [titre]="titre()"
+    sousTitre="Cet espace sera bientôt disponible."
+    icone="dashboard"
+  />
+
+  <div class="grille">
+    <app-carte-info icone="account_circle" libelle="Compte">{{ auth.nomAffiche() }}</app-carte-info>
     @if (auth.role(); as role) {
-      <p><strong>Rôle :</strong> {{ libellesRole[role] }}</p>
+      <app-carte-info icone="badge" libelle="Rôle">{{ libellesRole[role] }}</app-carte-info>
     }
-  </mat-card-content>
-  <mat-card-actions>
-    <button mat-flat-button type="button" (click)="auth.deconnexion()">Se déconnecter</button>
-  </mat-card-actions>
-</mat-card>
+  </div>
+
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="auth.deconnexion()">
+      <mat-icon fontIcon="logout" aria-hidden="true" />Se déconnecter
+    </button>
+  </div>
+</section>

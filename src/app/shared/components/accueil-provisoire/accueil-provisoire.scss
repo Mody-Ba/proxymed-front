@@ -1,9 +1,5 @@
-.carte {
-  max-width: 560px;
-  margin: 2rem auto;
-}
-
-h1 {
-  margin: 0;
-  font-size: 1.6rem;
+.grille {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: var(--pm-espace-3);
 }

@@ -1,12 +1,14 @@
-<section class="page">
-  <mat-card appearance="outlined" class="carte">
-    <mat-card-header>
-      <mat-card-title><h1>Nouvelle demande de consultation</h1></mat-card-title>
-    </mat-card-header>
+<section class="conteneur-page etroit">
+  <app-entete-page
+    titre="Nouvelle demande de consultation"
+    sousTitre="Un médecin senior étudiera votre demande et vous répondra dans votre espace."
+    icone="note_add"
+  />
 
+  <mat-card appearance="outlined" class="carte">
     <mat-card-content>
       @if (erreur(); as message) {
-        <div class="alerte erreur" role="alert">
+        <app-encadre type="erreur" role="alert" class="encadre-haut">
           <p>{{ message }}</p>
           @if (details().length) {
             <ul>
@@ -15,16 +17,20 @@
               }
             </ul>
           }
-        </div>
+        </app-encadre>
       }
 
-      <form [formGroup]="formulaire" (ngSubmit)="envoyer()" novalidate>
-        <mat-checkbox formControlName="pourProche" class="case-proche">
-          Cette demande concerne un proche
-        </mat-checkbox>
+      <form class="formulaire" [formGroup]="formulaire" (ngSubmit)="envoyer()" novalidate>
+        <div class="choix-proche" [class.coche]="pourProche()">
+          <mat-checkbox formControlName="pourProche" class="case-proche">
+            <span class="libelle-proche">Cette demande concerne un proche</span>
+            <span class="aide-proche">Cochez si la consultation est pour une autre personne.</span>
+          </mat-checkbox>
+        </div>
 
         <mat-form-field appearance="outline">
           <mat-label>{{ pourProche() ? 'Nom complet du proche' : 'Votre nom complet' }}</mat-label>
+          <mat-icon matPrefix [fontIcon]="pourProche() ? 'group' : 'person'" aria-hidden="true" />
           <input matInput type="text" formControlName="nomPatient" autocomplete="off" required />
           @if (pourProche()) {
             <mat-hint>La personne qui sera vue en consultation.</mat-hint>
@@ -48,7 +54,7 @@
             required
           ></textarea>
           <mat-hint>Décrivez les symptômes ou la raison de la consultation.</mat-hint>
-          <mat-hint align="end" class="compteur">
+          <mat-hint align="end" class="compteur" [class.limite]="motifSaisi().length > motifMax">
             {{ motifSaisi().length }} / {{ motifMax }}
           </mat-hint>
           @if (formulaire.controls.motif.hasError('required')) {
@@ -59,7 +65,10 @@
         </mat-form-field>
 
         <div class="actions">
-          <button mat-flat-button type="submit" [disabled]="enCours()">
+          <button mat-flat-button type="submit" class="bouton-principal" [disabled]="enCours()">
+            @if (!enCours()) {
+              <mat-icon fontIcon="send" aria-hidden="true" />
+            }
             @if (enCours()) {
               <mat-spinner diameter="20" aria-label="Envoi en cours" />
             } @else {

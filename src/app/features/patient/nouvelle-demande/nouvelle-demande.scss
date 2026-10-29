@@ -1,28 +1,55 @@
 .carte {
-  max-width: 640px;
-  margin: 0 auto;
+  padding: var(--pm-espace-2);
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-  margin-top: 1rem;
+.encadre-haut {
+  margin: 0 0 var(--pm-espace-2);
 }
 
-.case-proche {
-  margin-left: -8px;
+.formulaire {
+  margin-top: 0;
+  gap: var(--pm-espace-3);
+}
+
+.choix-proche {
+  padding: var(--pm-espace-2) var(--pm-espace-3) var(--pm-espace-2) var(--pm-espace-1);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--pm-rayon);
+  transition:
+    background-color 150ms,
+    border-color 150ms;
+
+  &.coche {
+    background: var(--mat-sys-secondary-container);
+    border-color: var(--mat-sys-secondary);
+  }
+}
+
+.libelle-proche,
+.aide-proche {
+  display: block;
+}
+
+.libelle-proche {
+  font: var(--mat-sys-title-small);
+}
+
+.aide-proche {
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-small);
 }
 
 .compteur {
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.85;
+
+  &.limite {
+    color: var(--mat-sys-error);
+    opacity: 1;
+  }
 }
 
-button[type='submit'] {
-  min-height: 40px;
-  min-width: 180px;
-}
-
-mat-spinner {
-  margin: 0 auto;
+.actions {
+  margin-top: var(--pm-espace-2);
 }

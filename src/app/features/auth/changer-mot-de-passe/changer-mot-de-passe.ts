@@ -10,11 +10,13 @@ import {
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { detailsErreur, messageErreur } from '../../../core/utils/erreur-http';
+import { Encadre } from '../../../shared/components/encadre/encadre';
 
 /** La confirmation doit reprendre le nouveau mot de passe. */
 const confirmationIdentique: ValidatorFn = (groupe: AbstractControl): ValidationErrors | null => {
@@ -29,12 +31,15 @@ const confirmationIdentique: ValidatorFn = (groupe: AbstractControl): Validation
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    Encadre,
   ],
   templateUrl: './changer-mot-de-passe.html',
   styleUrl: '../auth-formulaire.scss',
+  host: { class: 'page-auth' },
 })
 export class ChangerMotDePasse {
   protected readonly auth = inject(AuthService);

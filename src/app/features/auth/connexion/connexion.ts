@@ -3,11 +3,13 @@ import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { detailsErreur, messageErreur } from '../../../core/utils/erreur-http';
+import { Encadre } from '../../../shared/components/encadre/encadre';
 
 @Component({
   selector: 'app-connexion',
@@ -16,12 +18,15 @@ import { detailsErreur, messageErreur } from '../../../core/utils/erreur-http';
     RouterLink,
     MatCardModule,
     MatFormFieldModule,
+    MatIconModule,
     MatInputModule,
     MatButtonModule,
     MatProgressSpinnerModule,
+    Encadre,
   ],
   templateUrl: './connexion.html',
   styleUrl: '../auth-formulaire.scss',
+  host: { class: 'page-auth' },
 })
 export class Connexion {
   private readonly auth = inject(AuthService);
