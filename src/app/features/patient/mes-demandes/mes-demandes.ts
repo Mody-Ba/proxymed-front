@@ -1,10 +1,8 @@
-import { DatePipe } from '@angular/common';
 import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatTableModule } from '@angular/material/table';
 import { Router, RouterLink } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DemandeConsultationResponse } from '../../../core/models/demande-consultation.model';
@@ -13,38 +11,29 @@ import {
   TAILLE_PAGE_DEFAUT,
 } from '../../../core/services/demande-consultation.service';
 import { messageErreur } from '../../../core/utils/erreur-http';
-import { PaginateurFrancais } from '../../../core/utils/paginateur-francais';
 import { Encadre } from '../../../shared/components/encadre/encadre';
 import { EntetePage } from '../../../shared/components/entete-page/entete-page';
 import { EtatVide } from '../../../shared/components/etat-vide/etat-vide';
-import { StatutDemande } from '../../../shared/components/statut-demande/statut-demande';
+import { TableauDemandes } from '../../../shared/components/tableau-demandes/tableau-demandes';
 
 @Component({
   selector: 'app-mes-demandes',
   imports: [
-    DatePipe,
     RouterLink,
-    MatTableModule,
-    MatPaginatorModule,
     MatProgressBarModule,
     MatButtonModule,
     MatIconModule,
-    StatutDemande,
+    TableauDemandes,
     Encadre,
     EntetePage,
     EtatVide,
   ],
-  // Fourni ici et non dans app.config : le paginateur reste hors du bundle initial.
-  providers: [{ provide: MatPaginatorIntl, useClass: PaginateurFrancais }],
   templateUrl: './mes-demandes.html',
   styleUrl: './mes-demandes.scss',
 })
 export class MesDemandes implements OnInit {
   private readonly demandes = inject(DemandeConsultationService);
   private readonly router = inject(Router);
-
-  protected readonly colonnes = ['dateCreation', 'nomPatient', 'pourProche', 'statut'];
-  protected readonly taillesPage = [10, 20, 50, 100];
 
   /** Page et taille restent en memoire : seul l'identifiant d'une demande va dans l'URL. */
   protected readonly page = signal(0);

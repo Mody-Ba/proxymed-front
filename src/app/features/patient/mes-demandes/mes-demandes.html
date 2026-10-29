@@ -41,61 +41,16 @@
       </a>
     </app-etat-vide>
   } @else {
-    <div class="tableau" [class.rafraichissement]="enCours()" [attr.aria-busy]="enCours()">
-      <table mat-table [dataSource]="elements()">
-        <caption class="cdk-visually-hidden">
-          Vos demandes de consultation, de la plus récente à la plus ancienne. Sélectionnez une
-          ligne pour voir le détail.
-        </caption>
-
-        <ng-container matColumnDef="dateCreation">
-          <th mat-header-cell *matHeaderCellDef scope="col">Date</th>
-          <td mat-cell *matCellDef="let demande" data-libelle="Date" class="cellule-date">
-            {{ demande.dateCreation | date: "dd/MM/yyyy 'à' HH:mm" }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="nomPatient">
-          <th mat-header-cell *matHeaderCellDef scope="col">Patient</th>
-          <td mat-cell *matCellDef="let demande" data-libelle="Patient" class="cellule-patient">
-            {{ demande.nomPatient }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="pourProche">
-          <th mat-header-cell *matHeaderCellDef scope="col">Pour un proche</th>
-          <td mat-cell *matCellDef="let demande" data-libelle="Pour un proche">
-            {{ demande.pourProche ? 'Oui' : 'Non' }}
-          </td>
-        </ng-container>
-
-        <ng-container matColumnDef="statut">
-          <th mat-header-cell *matHeaderCellDef scope="col">Statut</th>
-          <td mat-cell *matCellDef="let demande" data-libelle="Statut">
-            <app-statut-demande [statut]="demande.statut" />
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
-        <tr
-          mat-row
-          *matRowDef="let demande; columns: colonnes"
-          class="ligne"
-          tabindex="0"
-          (click)="ouvrir(demande)"
-          (keydown.enter)="ouvrir(demande)"
-        ></tr>
-      </table>
-    </div>
-
-    <mat-paginator
-      [length]="total()"
-      [pageIndex]="page()"
-      [pageSize]="taille()"
-      [pageSizeOptions]="taillesPage"
-      [disabled]="enCours()"
-      (page)="changerPage($event)"
-      aria-label="Pagination de vos demandes"
+    <app-tableau-demandes
+      [elements]="elements()"
+      [total]="total()"
+      [page]="page()"
+      [taille]="taille()"
+      [enCours]="enCours()"
+      legende="Vos demandes de consultation, de la plus récente à la plus ancienne."
+      libellePagination="Pagination de vos demandes"
+      (ouvrir)="ouvrir($event)"
+      (changerPage)="changerPage($event)"
     />
   }
 </section>

@@ -1,0 +1,72 @@
+<form class="formulaire-dialogue" [formGroup]="formulaire" (ngSubmit)="accepter()" novalidate>
+  <h2 mat-dialog-title>Accepter la demande</h2>
+
+  <mat-dialog-content>
+    <p class="contexte">
+      Demande de <strong>{{ donnees.nomPatient }}</strong
+      >. Choisissez le médecin junior qui prendra en charge ce patient.
+    </p>
+
+    @if (erreur(); as message) {
+      <app-encadre type="erreur" role="alert" class="encadre-dialogue">
+        <p>{{ message }}</p>
+        @if (details().length) {
+          <ul>
+            @for (detail of details(); track detail) {
+              <li>{{ detail }}</li>
+            }
+          </ul>
+        }
+      </app-encadre>
+    }
+
+    @if (chargementJuniors()) {
+      <div class="chargement-dialogue" role="status">
+        <mat-spinner diameter="28" aria-hidden="true" />
+        <span>Chargement des médecins juniors…</span>
+      </div>
+    } @else if (erreurJuniors(); as message) {
+      <app-encadre type="erreur" role="alert" class="encadre-dialogue erreur-juniors">
+        <p>{{ message }}</p>
+        <button mat-stroked-button type="button" class="reessayer" (click)="chargerJuniors()">
+          <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+        </button>
+      </app-encadre>
+    } @else if (!juniors().length) {
+      <app-encadre type="avertissement" role="status" class="encadre-dialogue aucun-junior">
+        <p>{{ messageAucunJunior }}</p>
+      </app-encadre>
+    } @else {
+      <mat-form-field appearance="outline" class="champ">
+        <mat-label>Médecin junior</mat-label>
+        <mat-select formControlName="juniorId" required>
+          @for (junior of juniors(); track junior.id) {
+            <mat-option [value]="junior.id">{{ junior.nomComplet }}</mat-option>
+          }
+        </mat-select>
+        @if (formulaire.controls.juniorId.hasError('required')) {
+          <mat-error>Choisissez le médecin junior à qui assigner la demande.</mat-error>
+        }
+      </mat-form-field>
+    }
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="enCours()">Annuler</button>
+    <button
+      mat-flat-button
+      type="submit"
+      class="bouton-principal valider"
+      [disabled]="enCours() || chargementJuniors() || !juniors().length"
+    >
+      @if (!enCours()) {
+        <mat-icon fontIcon="check" aria-hidden="true" />
+      }
+      @if (enCours()) {
+        <mat-spinner diameter="20" aria-label="Acceptation en cours" />
+      } @else {
+        Accepter
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

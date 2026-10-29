@@ -1,0 +1,59 @@
+<form class="formulaire-dialogue" [formGroup]="formulaire" (ngSubmit)="refuser()" novalidate>
+  <h2 mat-dialog-title>Refuser la demande</h2>
+
+  <mat-dialog-content>
+    <p class="contexte">
+      Demande de <strong>{{ donnees.nomPatient }}</strong
+      >. Le motif du refus sera visible par le patient.
+    </p>
+
+    @if (erreur(); as message) {
+      <app-encadre type="erreur" role="alert" class="encadre-dialogue">
+        <p>{{ message }}</p>
+        @if (details().length) {
+          <ul>
+            @for (detail of details(); track detail) {
+              <li>{{ detail }}</li>
+            }
+          </ul>
+        }
+      </app-encadre>
+    }
+
+    <mat-form-field appearance="outline" class="champ">
+      <mat-label>Motif du refus</mat-label>
+      <textarea
+        matInput
+        formControlName="motifRefus"
+        rows="5"
+        autocomplete="off"
+        required
+      ></textarea>
+      <mat-hint>Expliquez au patient pourquoi sa demande ne peut pas être acceptée.</mat-hint>
+      <mat-hint align="end" class="compteur" [class.limite]="motifSaisi().length > motifRefusMax">
+        {{ motifSaisi().length }} / {{ motifRefusMax }}
+      </mat-hint>
+      @if (formulaire.controls.motifRefus.hasError('required')) {
+        <mat-error>Le motif du refus est obligatoire.</mat-error>
+      } @else if (formulaire.controls.motifRefus.hasError('maxlength')) {
+        <mat-error
+          >Le motif du refus ne doit pas dépasser {{ motifRefusMax }} caractères.</mat-error
+        >
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="enCours()">Annuler</button>
+    <button mat-flat-button type="submit" class="bouton-principal valider" [disabled]="enCours()">
+      @if (!enCours()) {
+        <mat-icon fontIcon="block" aria-hidden="true" />
+      }
+      @if (enCours()) {
+        <mat-spinner diameter="20" aria-label="Refus en cours" />
+      } @else {
+        Refuser
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

@@ -182,6 +182,17 @@ a {
   }
 }
 
+// Listes : hauteur reservee, la barre de progression ne decale pas le contenu.
+.zone-progression {
+  height: 4px;
+  margin-bottom: var(--pm-espace-2);
+}
+
+.chargement-texte {
+  text-align: center;
+  padding: var(--pm-espace-8) 0;
+}
+
 /* ---------- Pages d'authentification ---------- */
 
 .page-auth {

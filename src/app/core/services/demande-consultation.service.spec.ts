@@ -152,6 +152,88 @@ describe('DemandeConsultationService', () => {
     }
   });
 
+  describe('medecin senior', () => {
+    const ID = demande.id;
+
+    it('lit toutes les demandes filtrees par statut, avec page et taille', () => {
+      service.toutes('EN_ATTENTE', 2, 10).subscribe();
+
+      const requete = http.expectOne((r) => r.url === URL_DEMANDES);
+      expect(requete.request.method).toBe('GET');
+      expect(requete.request.urlWithParams).toBe(
+        `${URL_DEMANDES}?page=2&taille=10&statut=EN_ATTENTE`,
+      );
+      requete.flush({ elements: [], page: 2, taille: 10, totalElements: 0, totalPages: 0 });
+    });
+
+    it("sans filtre, n'envoie pas de parametre statut", () => {
+      service.toutes(null).subscribe();
+
+      const requete = http.expectOne((r) => r.url === URL_DEMANDES);
+      expect(requete.request.params.has('statut')).toBe(false);
+      expect(requete.request.params.get('page')).toBe('0');
+      expect(requete.request.params.get('taille')).toBe('20');
+      requete.flush({ elements: [], page: 0, taille: 20, totalElements: 0, totalPages: 0 });
+    });
+
+    it('accepte en envoyant seulement juniorId (PATCH)', () => {
+      service.accepter(ID, 'junior-1').subscribe();
+
+      const requete = http.expectOne(`${URL_DEMANDES}/${ID}/accepter`);
+      expect(requete.request.method).toBe('PATCH');
+      expect(requete.request.body).toEqual({ juniorId: 'junior-1' });
+      requete.flush({ ...demande, statut: 'ACCEPTEE', juniorId: 'junior-1' });
+    });
+
+    it('refuse en envoyant seulement motifRefus (PATCH)', () => {
+      service.refuser(ID, 'Hors périmètre').subscribe();
+
+      const requete = http.expectOne(`${URL_DEMANDES}/${ID}/refuser`);
+      expect(requete.request.method).toBe('PATCH');
+      expect(requete.request.body).toEqual({ motifRefus: 'Hors périmètre' });
+      requete.flush({ ...demande, statut: 'REFUSEE', motifRefus: 'Hors périmètre' });
+    });
+
+    it("n'envoie jamais d'identifiant de senior ni de statut dans une decision", () => {
+      service.accepter(ID, 'junior-1').subscribe();
+      service.refuser(ID, 'Motif').subscribe();
+
+      for (const action of ['accepter', 'refuser']) {
+        const corps = http.expectOne(`${URL_DEMANDES}/${ID}/${action}`).request.body as Record<
+          string,
+          unknown
+        >;
+        expect(Object.keys(corps)).toHaveLength(1);
+        expect(corps).not.toHaveProperty('medecinSeniorId');
+        expect(corps).not.toHaveProperty('statut');
+      }
+    });
+
+    it('laisse remonter le 409 a la page, sans redirection', () => {
+      let erreur: unknown;
+      service.accepter(ID, 'junior-1').subscribe({ error: (e: unknown) => (erreur = e) });
+
+      http
+        .expectOne(`${URL_DEMANDES}/${ID}/accepter`)
+        .flush(
+          { horodatage: '', status: 409, erreur: 'Demande deja traitee', message: '', details: [] },
+          { status: 409, statusText: 'Conflict' },
+        );
+
+      expect((erreur as HttpErrorResponse).status).toBe(409);
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  it('lit les demandes assignees au junior connecte', () => {
+    service.assigneesAMoi(1, 50).subscribe();
+
+    const requete = http.expectOne((r) => r.url === `${URL_DEMANDES}/assignees-a-moi`);
+    expect(requete.request.method).toBe('GET');
+    expect(requete.request.urlWithParams).toBe(`${URL_DEMANDES}/assignees-a-moi?page=1&taille=50`);
+    requete.flush({ elements: [], page: 1, taille: 50, totalElements: 0, totalPages: 0 });
+  });
+
   it('transmet le message de succes une seule fois a la liste', () => {
     service.annoncerSurListe('Votre demande a été envoyée.');
     expect(service.consommerMessageListe()).toBe('Votre demande a été envoyée.');

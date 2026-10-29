@@ -1,0 +1,71 @@
+<section class="conteneur-page etroit">
+  <a mat-button routerLink="/senior/demandes" class="retour">
+    <mat-icon fontIcon="arrow_back" aria-hidden="true" />Retour aux demandes
+  </a>
+
+  @if (enCours()) {
+    <div class="chargement">
+      <mat-spinner diameter="40" aria-label="Chargement de la demande" />
+    </div>
+  } @else if (erreur(); as texte) {
+    <app-entete-page titre="Demande de consultation" icone="description" />
+    <app-etat-vide icone="folder_off" titre="Demande indisponible">
+      <app-encadre type="erreur" role="alert" class="encadre-indisponible">{{ texte }}</app-encadre>
+      <a mat-flat-button routerLink="/senior/demandes">
+        <mat-icon fontIcon="inbox" aria-hidden="true" />Retour à la liste
+      </a>
+    </app-etat-vide>
+  } @else if (demande(); as d) {
+    <app-entete-page
+      titre="Demande de consultation"
+      [sousTitre]="'Reçue le ' + (d.dateCreation | date: 'dd/MM/yyyy \'à\' HH:mm')"
+      icone="description"
+    />
+
+    <div class="zone-progression">
+      @if (rafraichissement()) {
+        <mat-progress-bar mode="indeterminate" aria-label="Actualisation de la demande" />
+      }
+    </div>
+
+    @if (message(); as m) {
+      <app-encadre
+        #zoneMessage
+        [type]="m.type"
+        [attr.role]="m.type === 'succes' ? 'status' : 'alert'"
+        tabindex="-1"
+        class="message-page"
+      >
+        <p>{{ m.texte }}</p>
+      </app-encadre>
+    }
+
+    @if (d.statut === 'EN_ATTENTE') {
+      <div class="bloc-decision">
+        <p class="texte-decision">Cette demande attend votre décision.</p>
+        <div class="boutons-decision">
+          <button
+            mat-flat-button
+            type="button"
+            class="bouton-accepter"
+            [disabled]="rafraichissement()"
+            (click)="accepter(d)"
+          >
+            <mat-icon fontIcon="check" aria-hidden="true" />Accepter
+          </button>
+          <button
+            mat-stroked-button
+            type="button"
+            class="bouton-refuser"
+            [disabled]="rafraichissement()"
+            (click)="refuser(d)"
+          >
+            <mat-icon fontIcon="block" aria-hidden="true" />Refuser
+          </button>
+        </div>
+      </div>
+    }
+
+    <app-fiche-demande [demande]="d" />
+  }
+</section>

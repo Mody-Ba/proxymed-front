@@ -4,8 +4,11 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ACCES_REFUSE_GERE_PAR_LA_PAGE } from '../interceptors/auth.interceptor';
 import {
+  AcceptationDemandeRequest,
   DemandeConsultationRequest,
   DemandeConsultationResponse,
+  RefusDemandeRequest,
+  StatutDemandeConsultation,
 } from '../models/demande-consultation.model';
 import { PageResponse } from '../models/page.model';
 
@@ -13,8 +16,9 @@ import { PageResponse } from '../models/page.model';
 export const TAILLE_PAGE_DEFAUT = 20;
 
 /**
- * Demandes de consultation initiale du patient (Fiche 1). Le serveur ne renvoie au patient que
- * ses propres demandes : ce service ne filtre rien et ne garde aucune donnee medicale.
+ * Demandes de consultation initiale (Fiche 1). Le serveur ne renvoie a chaque role que ce qu'il
+ * a le droit de voir : ce service ne filtre rien et ne garde aucune donnee medicale.
+ * Ni identifiant de medecin senior ni statut ne partent jamais : le serveur les tire du badge.
  */
 @Injectable({ providedIn: 'root' })
 export class DemandeConsultationService {
@@ -42,6 +46,51 @@ export class DemandeConsultationService {
     return this.http.get<PageResponse<DemandeConsultationResponse>>(`${this.url}/mes-demandes`, {
       params,
     });
+  }
+
+  /**
+   * Toutes les demandes (MEDECIN_SENIOR), filtrees par statut si besoin. Sans statut, le
+   * parametre n'est pas envoye et le serveur renvoie tous les statuts.
+   */
+  toutes(
+    statut: StatutDemandeConsultation | null,
+    page = 0,
+    taille = TAILLE_PAGE_DEFAUT,
+  ): Observable<PageResponse<DemandeConsultationResponse>> {
+    let params = new HttpParams().set('page', page).set('taille', taille);
+    if (statut) {
+      params = params.set('statut', statut);
+    }
+    return this.http.get<PageResponse<DemandeConsultationResponse>>(this.url, { params });
+  }
+
+  /** Demandes ACCEPTEES assignees au medecin junior connecte (identifie par le badge). */
+  assigneesAMoi(
+    page = 0,
+    taille = TAILLE_PAGE_DEFAUT,
+  ): Observable<PageResponse<DemandeConsultationResponse>> {
+    const params = new HttpParams().set('page', page).set('taille', taille);
+    return this.http.get<PageResponse<DemandeConsultationResponse>>(`${this.url}/assignees-a-moi`, {
+      params,
+    });
+  }
+
+  /** 409 si la demande n'est plus EN_ATTENTE (traitee entre-temps par un autre senior). */
+  accepter(id: string, juniorId: string): Observable<DemandeConsultationResponse> {
+    const corps: AcceptationDemandeRequest = { juniorId };
+    return this.http.patch<DemandeConsultationResponse>(
+      `${this.url}/${encodeURIComponent(id)}/accepter`,
+      corps,
+    );
+  }
+
+  /** 409 si la demande n'est plus EN_ATTENTE (traitee entre-temps par un autre senior). */
+  refuser(id: string, motifRefus: string): Observable<DemandeConsultationResponse> {
+    const corps: RefusDemandeRequest = { motifRefus };
+    return this.http.patch<DemandeConsultationResponse>(
+      `${this.url}/${encodeURIComponent(id)}/refuser`,
+      corps,
+    );
   }
 
   /** Un 403 (demande d'un autre compte) est affiche par la page de detail, sans redirection. */

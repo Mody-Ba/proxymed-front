@@ -1,0 +1,55 @@
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Demandes de consultation"
+    sousTitre="Étudiez les demandes des patients et décidez de leur suite."
+    icone="inbox"
+  />
+
+  <mat-chip-listbox
+    #liste
+    class="filtres"
+    aria-label="Filtrer les demandes par statut"
+    [value]="filtre()"
+    (change)="changerFiltre($event, liste)"
+  >
+    @for (option of options; track option.valeur) {
+      <mat-chip-option [value]="option.valeur">
+        <mat-icon matChipAvatar [fontIcon]="option.icone" aria-hidden="true" />{{ option.libelle }}
+      </mat-chip-option>
+    }
+  </mat-chip-listbox>
+
+  <div class="zone-progression">
+    @if (enCours()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Chargement des demandes" />
+    }
+  </div>
+
+  @if (erreur(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut">
+      <p>{{ message }}</p>
+      <button mat-stroked-button type="button" class="reessayer" (click)="charger()">
+        <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+      </button>
+    </app-encadre>
+  } @else if (enCours() && !elements().length) {
+    <p class="texte-aide chargement-texte">Chargement des demandes…</p>
+  } @else if (!total()) {
+    <app-etat-vide
+      icone="inbox"
+      [titre]="texteVide()"
+      texte="Les nouvelles demandes des patients apparaîtront ici."
+    />
+  } @else {
+    <app-tableau-demandes
+      [elements]="elements()"
+      [total]="total()"
+      [page]="page()"
+      [taille]="taille()"
+      [enCours]="enCours()"
+      legende="Demandes de consultation filtrées par statut."
+      (ouvrir)="ouvrir($event)"
+      (changerPage)="changerPage($event)"
+    />
+  }
+</section>
