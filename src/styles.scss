@@ -291,12 +291,14 @@ a {
     color: var(--pm-attente-texte);
   }
 
-  &.statut-acceptee {
+  &.statut-acceptee,
+  &.etat-actif {
     background: var(--pm-succes-fond);
     color: var(--pm-succes-texte);
   }
 
-  &.statut-refusee {
+  &.statut-refusee,
+  &.etat-desactive {
     background: var(--mat-sys-error-container);
     color: var(--mat-sys-on-error-container);
   }

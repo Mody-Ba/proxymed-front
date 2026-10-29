@@ -31,7 +31,7 @@ export const MESSAGE_DEMANDE_REFUSEE =
     Encadre,
   ],
   templateUrl: './dialogue-refus.html',
-  styleUrl: '../dialogue-decision.scss',
+  styleUrl: '../../../shared/styles/dialogue.scss',
 })
 export class DialogueRefus {
   private readonly demandes = inject(DemandeConsultationService);

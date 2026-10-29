@@ -24,6 +24,7 @@
       class="lien"
       [routerLink]="lien.lien"
       routerLinkActive="actif"
+      [routerLinkActiveOptions]="{ exact: !!lien.exact }"
       ariaCurrentWhenActive="page"
       (click)="choisi.emit()"
     >

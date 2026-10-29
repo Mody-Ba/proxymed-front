@@ -20,7 +20,12 @@
   @if (!estTelephone() && liens().length) {
     <nav class="liens" aria-label="Menu principal">
       @for (lien of liens(); track lien.lien) {
-        <a mat-button [routerLink]="lien.lien" routerLinkActive="actif" ariaCurrentWhenActive="page"
+        <a
+          mat-button
+          [routerLink]="lien.lien"
+          routerLinkActive="actif"
+          [routerLinkActiveOptions]="{ exact: !!lien.exact }"
+          ariaCurrentWhenActive="page"
           ><mat-icon [fontIcon]="lien.icone" aria-hidden="true" />{{ lien.libelle }}</a
         >
       }

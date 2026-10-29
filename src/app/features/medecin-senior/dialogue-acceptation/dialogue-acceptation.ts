@@ -33,7 +33,7 @@ export const MESSAGE_AUCUN_JUNIOR =
     Encadre,
   ],
   templateUrl: './dialogue-acceptation.html',
-  styleUrl: '../dialogue-decision.scss',
+  styleUrl: '../../../shared/styles/dialogue.scss',
 })
 export class DialogueAcceptation implements OnInit {
   private readonly medecins = inject(MedecinService);

@@ -1,0 +1,101 @@
+<section class="conteneur-page etroit">
+  <app-entete-page
+    titre="Créer un compte médecin"
+    sousTitre="Un mot de passe temporaire sera envoyé par courriel au médecin, qui le changera à sa première connexion."
+    icone="person_add"
+  />
+
+  <mat-card appearance="outlined" class="carte">
+    <mat-card-content>
+      @if (erreur(); as message) {
+        <app-encadre
+          [type]="envoiEchoue() ? 'avertissement' : 'erreur'"
+          role="alert"
+          class="encadre-haut"
+        >
+          <p>{{ message }}</p>
+          @if (details().length) {
+            <ul>
+              @for (detail of details(); track detail) {
+                <li>{{ detail }}</li>
+              }
+            </ul>
+          }
+          @if (envoiEchoue()) {
+            <button
+              mat-stroked-button
+              type="button"
+              class="reessayer"
+              [disabled]="enCours()"
+              (click)="creer()"
+            >
+              <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+            </button>
+          }
+        </app-encadre>
+      }
+
+      <form class="formulaire" [formGroup]="formulaire" (ngSubmit)="creer()" novalidate>
+        <mat-form-field appearance="outline">
+          <mat-label>Nom complet</mat-label>
+          <mat-icon matPrefix fontIcon="person" aria-hidden="true" />
+          <input matInput type="text" formControlName="nomComplet" autocomplete="off" required />
+          @if (formulaire.controls.nomComplet.hasError('required')) {
+            <mat-error>Le nom complet est obligatoire.</mat-error>
+          } @else if (formulaire.controls.nomComplet.hasError('maxlength')) {
+            <mat-error
+              >Le nom complet ne doit pas dépasser {{ nomCompletMax }} caractères.</mat-error
+            >
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Courriel</mat-label>
+          <mat-icon matPrefix fontIcon="mail" aria-hidden="true" />
+          <input matInput type="email" formControlName="email" autocomplete="off" required />
+          <mat-hint>Le mot de passe temporaire sera envoyé à cette adresse.</mat-hint>
+          @if (formulaire.controls.email.hasError('required')) {
+            <mat-error>Le courriel est obligatoire.</mat-error>
+          } @else if (formulaire.controls.email.hasError('email')) {
+            <mat-error>Le courriel n'est pas valide.</mat-error>
+          } @else if (formulaire.controls.email.hasError('maxlength')) {
+            <mat-error>Le courriel ne doit pas dépasser {{ emailMax }} caractères.</mat-error>
+          } @else if (formulaire.controls.email.hasError('dejaUtilise')) {
+            <mat-error>Ce courriel est déjà utilisé par un autre compte.</mat-error>
+          }
+        </mat-form-field>
+
+        <fieldset class="choix-role">
+          <legend id="legende-role">Rôle <span aria-hidden="true">*</span></legend>
+          <mat-radio-group
+            formControlName="role"
+            aria-labelledby="legende-role"
+            aria-required="true"
+            class="roles"
+          >
+            @for (role of roles; track role) {
+              <mat-radio-button [value]="role">{{ libellesRole[role] }}</mat-radio-button>
+            }
+          </mat-radio-group>
+          @if (formulaire.controls.role.touched && formulaire.controls.role.hasError('required')) {
+            <p class="erreur-role" role="alert">Choisissez le rôle du médecin.</p>
+          }
+        </fieldset>
+
+        <div class="actions">
+          <button mat-flat-button type="submit" class="bouton-principal" [disabled]="enCours()">
+            @if (!enCours()) {
+              <mat-icon fontIcon="person_add" aria-hidden="true" />
+            }
+            @if (enCours()) {
+              <mat-spinner diameter="20" aria-label="Création du compte en cours" />
+            } @else {
+              Créer le compte
+            }
+          </button>
+          <a mat-button routerLink="/admin/comptes">Annuler</a>
+        </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
+</section>

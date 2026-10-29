@@ -1,3 +1,4 @@
+// Dialogues de confirmation et de decision (Material) : formulaire, contexte, chargement, actions.
 // Le formulaire enveloppe le contenu et les actions sans casser la mise en page du dialogue.
 .formulaire-dialogue {
   display: contents;
@@ -39,4 +40,10 @@ mat-dialog-actions {
 
 .bouton-principal {
   min-width: 140px;
+}
+
+// Action qui retire un acces (desactivation) : couleur d'erreur, le libelle reste explicite.
+.bouton-danger:not(:disabled) {
+  background: var(--mat-sys-error);
+  color: var(--mat-sys-on-error);
 }

@@ -1,0 +1,47 @@
+<h2 mat-dialog-title>{{ texte.titre }}</h2>
+
+<mat-dialog-content>
+  @if (erreur(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-dialogue">
+      <p>{{ message }}</p>
+    </app-encadre>
+  }
+
+  @if (donnees.action === 'reinitialisation') {
+    <p class="contexte">
+      Un nouveau mot de passe temporaire sera envoyé par courriel à
+      <strong>{{ compte.nomComplet }}</strong> ({{ compte.email }}). L’ancien mot de passe ne
+      fonctionnera plus et le titulaire devra en choisir un nouveau à sa prochaine connexion.
+    </p>
+  } @else if (desactivation) {
+    <p class="contexte">
+      <strong>{{ compte.nomComplet }}</strong> ({{ compte.email }}) ne pourra plus se connecter.
+      Vous pourrez réactiver ce compte à tout moment.
+    </p>
+  } @else {
+    <p class="contexte">
+      <strong>{{ compte.nomComplet }}</strong> ({{ compte.email }}) pourra de nouveau se connecter.
+    </p>
+  }
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button type="button" mat-dialog-close [disabled]="enCours()">Annuler</button>
+  <button
+    mat-flat-button
+    type="button"
+    class="bouton-principal valider"
+    [class.bouton-danger]="desactivation"
+    [disabled]="enCours()"
+    (click)="confirmer()"
+  >
+    @if (!enCours()) {
+      <mat-icon [fontIcon]="texte.icone" aria-hidden="true" />
+    }
+    @if (enCours()) {
+      <mat-spinner diameter="20" [attr.aria-label]="texte.enCours" />
+    } @else {
+      {{ texte.bouton }}
+    }
+  </button>
+</mat-dialog-actions>
