@@ -29,6 +29,8 @@ export interface DemandeConsultationResponse {
   motifRefus: string | null;
   dateCreation: string;
   dateDecision: string | null;
+  /** Consultation initiale (Fiche 1) commencee a partir de cette demande ; null sinon. */
+  consultationId: string | null;
 }
 
 /** Longueurs maximales, identiques aux @Size de DemandeConsultationRequest. */
@@ -50,3 +52,32 @@ export interface RefusDemandeRequest {
 
 /** Longueur maximale, identique au @Size de RefusDemandeRequest. */
 export const MOTIF_REFUS_MAX = 1000;
+
+/** Sexe du patient, identique a l'enum Sexe de la Fiche 1. */
+export type Sexe = 'M' | 'F';
+
+/**
+ * POST /api/demandes-consultation/{id}/commencer (MEDECIN_JUNIOR assigne, repond 201).
+ * Seulement ce que la demande ne fournit pas : le nom du patient et le motif viennent de la
+ * demande, le junior vient du badge. dateNaissance au format AAAA-MM-JJ.
+ */
+export interface CommencementConsultationRequest {
+  numeroDossierProxymed: string;
+  dateNaissance: string;
+  sexe: Sexe;
+  medecinSeniorId: number;
+}
+
+export interface CommencementConsultationResponse {
+  demandeId: string;
+  patientId: string;
+  consultationId: string;
+  statutConsultation: 'BROUILLON' | 'VALIDEE' | 'SIGNEE';
+}
+
+/** Longueur maximale, identique au @Size de CommencementConsultationRequest. */
+export const NUMERO_DOSSIER_MAX = 100;
+
+/** Valeurs du champ "erreur" des 409 de POST .../commencer. */
+export const ERREUR_CONSULTATION_NON_COMMENCABLE = 'Consultation impossible a commencer';
+export const ERREUR_PATIENT_EXISTANT = 'Patient existant';

@@ -22,6 +22,7 @@ function demande(id: string): DemandeConsultationResponse {
     motifRefus: null,
     dateCreation: '2026-10-28T09:30:00Z',
     dateDecision: '2026-10-28T11:00:00Z',
+    consultationId: null,
   };
 }
 

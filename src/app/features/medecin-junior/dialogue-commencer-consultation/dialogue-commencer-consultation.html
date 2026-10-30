@@ -1,0 +1,126 @@
+<form class="formulaire-dialogue" [formGroup]="formulaire" (ngSubmit)="commencer()" novalidate>
+  <h2 mat-dialog-title>Commencer la consultation</h2>
+
+  <mat-dialog-content>
+    <p class="contexte">
+      Demande de <strong>{{ donnees.nomPatient }}</strong
+      >. Le patient et le brouillon de la Fiche 1 seront créés avec le nom et le motif de la demande
+      ; complétez ce qu’elle ne fournit pas.
+    </p>
+
+    @if (erreur(); as message) {
+      <app-encadre type="erreur" role="alert" class="encadre-dialogue">
+        <p>{{ message }}</p>
+        @if (details().length) {
+          <ul>
+            @for (detail of details(); track detail) {
+              <li>{{ detail }}</li>
+            }
+          </ul>
+        }
+      </app-encadre>
+    }
+
+    <div class="champs">
+      <mat-form-field appearance="outline">
+        <mat-label>Numéro de dossier PROXYMED</mat-label>
+        <input
+          matInput
+          type="text"
+          formControlName="numeroDossierProxymed"
+          autocomplete="off"
+          required
+        />
+        @if (formulaire.controls.numeroDossierProxymed.hasError('required')) {
+          <mat-error>Le numéro de dossier est obligatoire.</mat-error>
+        } @else if (formulaire.controls.numeroDossierProxymed.hasError('maxlength')) {
+          <mat-error
+            >Le numéro de dossier ne doit pas dépasser {{ numeroDossierMax }} caractères.</mat-error
+          >
+        } @else if (formulaire.controls.numeroDossierProxymed.hasError('dejaUtilise')) {
+          <mat-error>Ce numéro de dossier est déjà utilisé par un autre patient.</mat-error>
+        }
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Date de naissance</mat-label>
+        <input matInput type="date" formControlName="dateNaissance" autocomplete="off" required />
+        @if (formulaire.controls.dateNaissance.hasError('required')) {
+          <mat-error>La date de naissance est obligatoire.</mat-error>
+        } @else if (formulaire.controls.dateNaissance.hasError('datePassee')) {
+          <mat-error>La date de naissance doit être dans le passé.</mat-error>
+        }
+      </mat-form-field>
+
+      <fieldset class="choix-sexe">
+        <legend id="legende-sexe">Sexe <span aria-hidden="true">*</span></legend>
+        <mat-radio-group
+          formControlName="sexe"
+          aria-labelledby="legende-sexe"
+          aria-required="true"
+          class="sexes"
+        >
+          @for (sexe of sexes; track sexe.valeur) {
+            <mat-radio-button [value]="sexe.valeur">{{ sexe.libelle }}</mat-radio-button>
+          }
+        </mat-radio-group>
+        @if (formulaire.controls.sexe.touched && formulaire.controls.sexe.hasError('required')) {
+          <p class="erreur-sexe" role="alert">Le sexe est obligatoire.</p>
+        }
+      </fieldset>
+
+      @if (chargementSeniors()) {
+        <div class="chargement-dialogue" role="status">
+          <mat-spinner diameter="28" aria-hidden="true" />
+          <span>Chargement des médecins seniors…</span>
+        </div>
+      } @else if (erreurSeniors(); as message) {
+        <app-encadre type="erreur" role="alert" class="encadre-dialogue erreur-seniors">
+          <p>{{ message }}</p>
+          <button mat-stroked-button type="button" class="reessayer" (click)="chargerSeniors()">
+            <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+          </button>
+        </app-encadre>
+      } @else if (!seniors().length) {
+        <app-encadre type="avertissement" role="status" class="encadre-dialogue aucun-senior">
+          <p>{{ messageAucunSenior }}</p>
+        </app-encadre>
+      } @else {
+        <mat-form-field appearance="outline" subscriptSizing="dynamic">
+          <mat-label>Médecin senior responsable</mat-label>
+          <mat-select formControlName="medecinSeniorId" required>
+            @for (senior of seniors(); track senior.id) {
+              <mat-option [value]="senior.id">{{ libelleSenior(senior) }}</mat-option>
+            }
+          </mat-select>
+          <mat-hint class="aide-senior"
+            >Pour l’instant, le médecin senior est choisi à la main : il n’est pas encore relié
+            automatiquement à celui qui a accepté la demande.</mat-hint
+          >
+          @if (formulaire.controls.medecinSeniorId.hasError('required')) {
+            <mat-error>Choisissez le médecin senior responsable.</mat-error>
+          }
+        </mat-form-field>
+      }
+    </div>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close [disabled]="enCours()">Annuler</button>
+    <button
+      mat-flat-button
+      type="submit"
+      class="bouton-principal valider"
+      [disabled]="enCours() || chargementSeniors() || !seniors().length"
+    >
+      @if (!enCours()) {
+        <mat-icon fontIcon="play_arrow" aria-hidden="true" />
+      }
+      @if (enCours()) {
+        <mat-spinner diameter="20" aria-label="Création de la consultation en cours" />
+      } @else {
+        Commencer
+      }
+    </button>
+  </mat-dialog-actions>
+</form>

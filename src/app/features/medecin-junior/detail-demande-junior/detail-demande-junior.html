@@ -22,9 +22,48 @@
       icone="description"
     />
 
+    <div class="zone-progression">
+      @if (rafraichissement()) {
+        <mat-progress-bar mode="indeterminate" aria-label="Actualisation de la demande" />
+      }
+    </div>
+
+    @if (message(); as m) {
+      <app-encadre
+        #zoneMessage
+        [type]="m.type"
+        [attr.role]="m.type === 'succes' ? 'status' : 'alert'"
+        tabindex="-1"
+        class="message-page"
+      >
+        <p>{{ m.texte }}</p>
+      </app-encadre>
+    }
+
     <app-encadre type="info" icone="assignment_ind" class="info-assignation">
       <p>Cette demande vous a été assignée par un médecin senior.</p>
     </app-encadre>
+
+    @if (d.consultationId) {
+      <app-encadre type="succes" icone="task_alt" class="consultation-commencee">
+        <p>Consultation commencée</p>
+      </app-encadre>
+    } @else if (peutCommencer(d)) {
+      <div class="bloc-commencer">
+        <p class="texte-commencer">
+          Vous recevez ce patient : commencez la consultation initiale pour créer sa Fiche 1.
+        </p>
+        <button
+          mat-flat-button
+          type="button"
+          class="bouton-commencer"
+          [disabled]="rafraichissement()"
+          (click)="commencer(d)"
+        >
+          <mat-icon fontIcon="play_arrow" aria-hidden="true" />Commencer la consultation
+        </button>
+      </div>
+    }
 
     <app-fiche-demande [demande]="d" />
   }

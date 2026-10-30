@@ -5,6 +5,8 @@ import { environment } from '../../../environments/environment';
 import { ACCES_REFUSE_GERE_PAR_LA_PAGE } from '../interceptors/auth.interceptor';
 import {
   AcceptationDemandeRequest,
+  CommencementConsultationRequest,
+  CommencementConsultationResponse,
   DemandeConsultationRequest,
   DemandeConsultationResponse,
   RefusDemandeRequest,
@@ -90,6 +92,28 @@ export class DemandeConsultationService {
     return this.http.patch<DemandeConsultationResponse>(
       `${this.url}/${encodeURIComponent(id)}/refuser`,
       corps,
+    );
+  }
+
+  /**
+   * Le junior assigne commence la consultation initiale : le serveur cree le patient et le
+   * brouillon de Fiche 1. Le 403 (demande assignee a un autre junior) est affiche par la page.
+   */
+  commencer(
+    id: string,
+    saisie: CommencementConsultationRequest,
+  ): Observable<CommencementConsultationResponse> {
+    // Corps reconstruit champ par champ : ni junior, ni nom, ni motif ne partent.
+    const corps: CommencementConsultationRequest = {
+      numeroDossierProxymed: saisie.numeroDossierProxymed,
+      dateNaissance: saisie.dateNaissance,
+      sexe: saisie.sexe,
+      medecinSeniorId: saisie.medecinSeniorId,
+    };
+    return this.http.post<CommencementConsultationResponse>(
+      `${this.url}/${encodeURIComponent(id)}/commencer`,
+      corps,
+      { context: new HttpContext().set(ACCES_REFUSE_GERE_PAR_LA_PAGE, true) },
     );
   }
 

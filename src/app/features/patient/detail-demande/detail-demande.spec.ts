@@ -22,6 +22,7 @@ const base: DemandeConsultationResponse = {
   motifRefus: null,
   dateCreation: '2026-10-20T08:15:00Z',
   dateDecision: null,
+  consultationId: null,
 };
 
 describe('DetailDemande', () => {
