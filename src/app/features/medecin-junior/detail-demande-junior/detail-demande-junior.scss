@@ -10,3 +10,37 @@
 .info-assignation {
   margin: 0 0 var(--pm-espace-4);
 }
+
+.message-page,
+.consultation-commencee {
+  margin: 0 0 var(--pm-espace-4);
+}
+
+.bloc-commencer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pm-espace-3);
+  margin-bottom: var(--pm-espace-4);
+  padding: var(--pm-espace-4);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--pm-rayon);
+  background: var(--mat-sys-surface-container-low);
+}
+
+.texte-commencer {
+  flex: 1 1 240px;
+  margin: 0;
+  font: var(--mat-sys-title-small);
+}
+
+.bouton-commencer {
+  min-height: 44px;
+}
+
+@media (max-width: 599.98px) {
+  .bouton-commencer {
+    width: 100%;
+  }
+}

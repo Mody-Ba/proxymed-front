@@ -24,6 +24,7 @@ const demande: DemandeConsultationResponse = {
   motifRefus: null,
   dateCreation: '2026-10-28T10:00:00Z',
   dateDecision: null,
+  consultationId: null,
 };
 
 describe('DemandeConsultationService', () => {
@@ -221,6 +222,66 @@ describe('DemandeConsultationService', () => {
         );
 
       expect((erreur as HttpErrorResponse).status).toBe(409);
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('commencer la consultation (junior)', () => {
+    const saisie = {
+      numeroDossierProxymed: 'PXM-2026-0042',
+      dateNaissance: '1952-04-18',
+      sexe: 'F' as const,
+      medecinSeniorId: 7,
+    };
+
+    it('POST /{id}/commencer avec seulement les 4 champs saisis', () => {
+      let recue: unknown;
+      service.commencer(demande.id, saisie).subscribe((r) => (recue = r));
+
+      const requete = http.expectOne(`${URL_DEMANDES}/${demande.id}/commencer`);
+      expect(requete.request.url).toBe(
+        `http://localhost:8081/api/demandes-consultation/${demande.id}/commencer`,
+      );
+      expect(requete.request.method).toBe('POST');
+      expect(requete.request.body).toEqual(saisie);
+      expect(requete.request.headers.get('Authorization')).toBe('Bearer badge-patient');
+      const reponse = {
+        demandeId: demande.id,
+        patientId: 'p-1',
+        consultationId: 'c-1',
+        statutConsultation: 'BROUILLON',
+      };
+      requete.flush(reponse, { status: 201, statusText: 'Created' });
+      expect(recue).toEqual(reponse);
+    });
+
+    it("n'envoie ni junior, ni nom, ni motif, meme si on lui en passe", () => {
+      service
+        .commencer(demande.id, { ...saisie, juniorId: 'x', nomComplet: NOM, motif: MOTIF } as never)
+        .subscribe();
+
+      const corps = http.expectOne(`${URL_DEMANDES}/${demande.id}/commencer`).request
+        .body as Record<string, unknown>;
+      expect(Object.keys(corps).sort()).toEqual([
+        'dateNaissance',
+        'medecinSeniorId',
+        'numeroDossierProxymed',
+        'sexe',
+      ]);
+    });
+
+    it('sur 403 : laisse la page afficher le message, sans redirection', () => {
+      let erreur: unknown;
+      service.commencer(demande.id, saisie).subscribe({ error: (e: unknown) => (erreur = e) });
+
+      http
+        .expectOne(`${URL_DEMANDES}/${demande.id}/commencer`)
+        .flush(
+          { horodatage: '', status: 403, erreur: 'Acces refuse', message: '', details: [] },
+          { status: 403, statusText: 'Forbidden' },
+        );
+
+      expect((erreur as HttpErrorResponse).status).toBe(403);
       expect(router.navigateByUrl).not.toHaveBeenCalled();
     });
   });

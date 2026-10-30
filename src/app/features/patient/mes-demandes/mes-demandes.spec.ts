@@ -27,6 +27,7 @@ function demande(
     motifRefus: statut === 'REFUSEE' ? 'Hors périmètre' : null,
     dateCreation: '2026-10-28T09:30:00Z',
     dateDecision: null,
+    consultationId: null,
   };
 }
 

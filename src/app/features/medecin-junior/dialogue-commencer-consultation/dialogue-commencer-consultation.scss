@@ -1,0 +1,33 @@
+.champs {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pm-espace-2);
+
+  mat-form-field {
+    width: 100%;
+  }
+}
+
+.choix-sexe {
+  margin: 0 0 var(--pm-espace-3);
+  padding: var(--pm-espace-2) var(--pm-espace-3) var(--pm-espace-3);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--pm-rayon);
+
+  legend {
+    padding: 0 var(--pm-espace-1);
+    font: var(--mat-sys-title-small);
+  }
+}
+
+.sexes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-espace-1) var(--pm-espace-4);
+}
+
+.erreur-sexe {
+  margin: var(--pm-espace-1) 0 0;
+  color: var(--mat-sys-error);
+  font: var(--mat-sys-body-small);
+}

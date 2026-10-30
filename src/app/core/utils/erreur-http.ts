@@ -57,3 +57,9 @@ export function estConflit(erreur: unknown): boolean {
 export function estEchecEnvoiEmail(erreur: unknown): boolean {
   return erreur instanceof HttpErrorResponse && erreur.status === 503;
 }
+
+/** Champ "erreur" du corps d'erreur du serveur (ex. pour distinguer deux 409). */
+export function typeErreur(erreur: unknown): string | null {
+  const type = corpsServeur(erreur)?.erreur;
+  return typeof type === 'string' ? type : null;
+}

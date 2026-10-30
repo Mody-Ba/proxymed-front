@@ -28,6 +28,7 @@ function demande(id: string, statut: StatutDemandeConsultation): DemandeConsulta
     motifRefus: null,
     dateCreation: '2026-10-28T09:30:00Z',
     dateDecision: null,
+    consultationId: null,
   };
 }
 
