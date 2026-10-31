@@ -1,0 +1,116 @@
+<section class="fiche-papier" aria-labelledby="titre-fiche-papier">
+  <h2 id="titre-fiche-papier" class="titre">Fiche 1 sur papier</h2>
+  <p id="aide-fiche-papier" class="aide">
+    Téléchargez la fiche, remplissez-la à la main, puis importez le scan au format PDF (10&nbsp;Mo
+    maximum), en veillant à ce que le code QR soit net et entier.
+  </p>
+
+  <div class="actions">
+    <button
+      mat-stroked-button
+      type="button"
+      class="bouton-telecharger-fiche"
+      [disabled]="telechargement()"
+      [attr.aria-busy]="telechargement()"
+      (click)="telechargerFiche()"
+    >
+      @if (telechargement()) {
+        <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+      } @else {
+        <mat-icon fontIcon="download" aria-hidden="true" />
+      }
+      Télécharger la fiche (PDF)
+    </button>
+
+    @if (!ficheSignee()) {
+      <input
+        #selecteur
+        type="file"
+        accept=".pdf,application/pdf"
+        class="selecteur-fichier"
+        tabindex="-1"
+        aria-hidden="true"
+        (change)="fichierChoisi($event)"
+      />
+      <button
+        mat-flat-button
+        type="button"
+        class="bouton-importer-fiche"
+        aria-describedby="aide-fiche-papier"
+        [disabled]="envoi() || verification() === 'en-cours'"
+        [attr.aria-busy]="envoi()"
+        (click)="selecteur.click()"
+      >
+        @if (envoi()) {
+          <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+        } @else {
+          <mat-icon fontIcon="upload_file" aria-hidden="true" />
+        }
+        Importer la fiche remplie
+      </button>
+    }
+  </div>
+
+  <div class="zone-progression">
+    @if (envoi()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Envoi de la fiche en cours" />
+    } @else if (verification() === 'en-cours') {
+      <mat-progress-bar mode="indeterminate" aria-label="Recherche d’une fiche déjà importée" />
+    }
+  </div>
+
+  @if (message(); as m) {
+    <app-encadre
+      #zoneMessage
+      [type]="m.type"
+      [attr.role]="m.type === 'succes' ? 'status' : 'alert'"
+      tabindex="-1"
+      class="message-fiche"
+    >
+      <p>{{ m.texte }}</p>
+    </app-encadre>
+  }
+
+  @if (verification() === 'echec') {
+    <app-encadre type="avertissement" role="status" class="verification-echec">
+      <p>{{ messageVerificationImpossible }}</p>
+    </app-encadre>
+  }
+
+  @if (ficheSignee(); as f) {
+    <div class="fiche-importee" role="group" aria-labelledby="titre-fiche-importee">
+      <h3 id="titre-fiche-importee" class="sous-titre">
+        <mat-icon fontIcon="task" aria-hidden="true" />Fiche signée importée
+      </h3>
+      <dl class="details">
+        <div>
+          <dt>Fichier</dt>
+          <dd class="nom-fichier">{{ f.nomFichier }}</dd>
+        </div>
+        <div>
+          <dt>Taille</dt>
+          <dd class="taille-fichier">{{ tailleLisible(f.tailleOctets) }}</dd>
+        </div>
+        <div>
+          <dt>Importée le</dt>
+          <dd class="date-import">{{ f.dateImport | date: "dd/MM/yyyy 'à' HH:mm" }}</dd>
+        </div>
+      </dl>
+      <button
+        mat-stroked-button
+        type="button"
+        class="bouton-telecharger-scan"
+        [disabled]="telechargementScan()"
+        [attr.aria-busy]="telechargementScan()"
+        (click)="telechargerScan()"
+      >
+        @if (telechargementScan()) {
+          <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+        } @else {
+          <mat-icon fontIcon="download" aria-hidden="true" />
+        }
+        Télécharger le scan importé
+      </button>
+    </div>
+  }
+</section>

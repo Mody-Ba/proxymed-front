@@ -1,0 +1,95 @@
+.fiche-papier {
+  margin-bottom: var(--pm-espace-4);
+  padding: var(--pm-espace-4);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--pm-rayon);
+  background: var(--mat-sys-surface-container-low);
+  color: var(--mat-sys-on-surface);
+}
+
+.titre {
+  margin: 0 0 var(--pm-espace-2);
+  font: var(--mat-sys-title-medium);
+}
+
+.aide {
+  margin: 0 0 var(--pm-espace-3);
+  color: var(--mat-sys-on-surface-variant);
+  font: var(--mat-sys-body-medium);
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-espace-3);
+
+  button {
+    min-height: 44px;
+  }
+}
+
+.indicateur {
+  display: inline-block;
+  margin-right: var(--pm-espace-2);
+  vertical-align: middle;
+}
+
+/* Le champ natif reste dans le DOM (ouvert par le bouton), mais n'est ni visible ni focalisable. */
+.selecteur-fichier {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.zone-progression {
+  min-height: 4px;
+  margin: var(--pm-espace-3) 0;
+}
+
+.message-fiche,
+.verification-echec {
+  margin: 0 0 var(--pm-espace-3);
+}
+
+.fiche-importee {
+  padding: var(--pm-espace-3);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--pm-rayon);
+  background: var(--mat-sys-surface);
+}
+
+.sous-titre {
+  display: flex;
+  align-items: center;
+  gap: var(--pm-espace-2);
+  margin: 0 0 var(--pm-espace-3);
+  font: var(--mat-sys-title-small);
+}
+
+.details {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--pm-espace-3);
+  margin: 0 0 var(--pm-espace-3);
+
+  dt {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-label-medium);
+  }
+
+  dd {
+    margin: 0;
+    font: var(--mat-sys-body-medium);
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .actions button,
+  .bouton-telecharger-scan {
+    width: 100%;
+  }
+}
