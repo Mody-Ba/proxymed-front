@@ -25,6 +25,7 @@ const ID = '33333333-3333-3333-3333-333333333333';
 const URL_DETAIL = `${environment.api.fiche1}/api/demandes-consultation/${ID}`;
 const URL_COMMENCER = `${URL_DETAIL}/commencer`;
 const URL_SENIORS = `${environment.api.fiche1}/api/medecins`;
+const URL_CONSULTATIONS = `${environment.api.fiche1}/api/consultations`;
 
 const assignee: DemandeConsultationResponse = {
   id: ID,
@@ -97,6 +98,14 @@ describe('DetailDemandeJunior', () => {
     expect(requete.request.method).toBe('GET');
     requete.flush(demande);
     await stabiliser();
+    if (demande.consultationId) {
+      // Fiche 1 sur papier : recherche d'une fiche deja importee (aucune ici).
+      http
+        .expectOne(`${URL_CONSULTATIONS}/${demande.consultationId}`)
+        .flush({ patient: { id: 'p-1' } });
+      http.expectOne(`${environment.api.fiche1}/api/patients/p-1/fiches-signees`).flush([]);
+      await stabiliser();
+    }
   }
 
   function boutonCommencer(): HTMLButtonElement | null {
@@ -210,6 +219,27 @@ describe('DetailDemandeJunior', () => {
 
       expect(boutonCommencer()).toBeNull();
       expect(element.querySelector('.consultation-commencee')).toBeNull();
+    });
+  });
+
+  describe('Fiche 1 sur papier', () => {
+    it('sans consultation : ni telechargement ni import', async () => {
+      await ouvrir();
+
+      expect(element.querySelector('app-fiche-consultation-papier')).toBeNull();
+      expect(element.querySelector('.bouton-telecharger-fiche')).toBeNull();
+      expect(element.querySelector('.bouton-importer-fiche')).toBeNull();
+    });
+
+    it('consultation commencee : boutons de telechargement et d’import', async () => {
+      await ouvrir(commencee);
+
+      expect(element.querySelector('.bouton-telecharger-fiche')!.textContent!.trim()).toBe(
+        'Télécharger la fiche (PDF)',
+      );
+      expect(element.querySelector('.bouton-importer-fiche')!.textContent!.trim()).toBe(
+        'Importer la fiche remplie',
+      );
     });
   });
 

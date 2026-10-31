@@ -25,6 +25,7 @@ import { Encadre, TypeEncadre } from '../../../shared/components/encadre/encadre
 import { EntetePage } from '../../../shared/components/entete-page/entete-page';
 import { EtatVide } from '../../../shared/components/etat-vide/etat-vide';
 import { FicheDemande } from '../../../shared/components/fiche-demande/fiche-demande';
+import { FicheConsultationPapier } from '../fiche-consultation-papier/fiche-consultation-papier';
 import {
   DialogueCommencerConsultation,
   DonneesCommencement,
@@ -40,8 +41,8 @@ interface MessagePage {
 }
 
 /**
- * Detail d'une demande assignee au junior. Seule action : commencer la consultation initiale
- * d'une demande ACCEPTEE qui n'a pas encore de consultation. Le serveur repond 403 si la demande
+ * Detail d'une demande assignee au junior : commencer la consultation initiale d'une demande
+ * ACCEPTEE qui n'a pas encore de consultation, puis gerer sa Fiche 1 sur papier. Le serveur repond 403 si la demande
  * n'est pas assignee a ce junior, et reste seul juge (409 si elle ne peut plus etre commencee).
  */
 @Component({
@@ -57,6 +58,7 @@ interface MessagePage {
     EntetePage,
     EtatVide,
     FicheDemande,
+    FicheConsultationPapier,
   ],
   templateUrl: './detail-demande-junior.html',
   styleUrl: './detail-demande-junior.scss',

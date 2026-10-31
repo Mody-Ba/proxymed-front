@@ -48,6 +48,7 @@
       <app-encadre type="succes" icone="task_alt" class="consultation-commencee">
         <p>Consultation commencée</p>
       </app-encadre>
+      <app-fiche-consultation-papier [consultationId]="d.consultationId" />
     } @else if (peutCommencer(d)) {
       <div class="bloc-commencer">
         <p class="texte-commencer">
