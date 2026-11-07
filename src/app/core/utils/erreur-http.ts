@@ -260,3 +260,55 @@ export function messageResultatImport(resultat: {
   }
   return MESSAGES_RESULTAT_PAR_CODE[resultat.code] ?? MESSAGE_INATTENDU;
 }
+
+// ---------- Visa des fiches par le senior ----------
+
+export const MESSAGE_SENIOR_ACCES_REFUSE =
+  'Votre rôle ne permet pas cette action : elle est réservée au médecin senior.';
+
+/**
+ * Liste, visa et renvoi en lot : 400 (avec le detail de validation), 401, 403, 404, 409 avec le
+ * message du serveur ; repli en francais si le corps est absent.
+ */
+export function messageDecisionFiches(erreur: unknown, parDefaut: string): string {
+  if (erreur instanceof HttpErrorResponse) {
+    switch (erreur.status) {
+      case 0:
+        return MESSAGE_INJOIGNABLE;
+      case 401:
+        return messageErreur(erreur, MESSAGE_SESSION_EXPIREE);
+      case 403:
+        return messageErreur(erreur, MESSAGE_SENIOR_ACCES_REFUSE);
+      case 400:
+        return messageEtDetails(erreur, parDefaut);
+      case 404:
+        return messageErreur(erreur, 'Fiche introuvable.');
+      case 409:
+        return messageErreur(erreur, 'Cette fiche a déjà été traitée.');
+    }
+  }
+  return messageErreur(erreur, parDefaut);
+}
+
+/**
+ * Telechargement du scan ou du rapport : le corps d'erreur (Blob) a ete relu en JSON par le
+ * service, le message du serveur est donc disponible.
+ */
+export function messageTelechargementVisa(erreur: unknown, document: 'scan' | 'rapport'): string {
+  const parDefaut =
+    document === 'scan'
+      ? 'Le scan n’a pas pu être téléchargé. Réessayez.'
+      : 'Le rapport n’a pas pu être téléchargé. Réessayez.';
+  if (erreur instanceof HttpErrorResponse) {
+    switch (erreur.status) {
+      case 404:
+        return messageErreur(
+          erreur,
+          document === 'scan' ? MESSAGE_FICHE_SIGNEE_INTROUVABLE : 'Cette fiche est introuvable.',
+        );
+      case 409:
+        return messageErreur(erreur, 'Le rapport n’existe que pour une fiche visée.');
+    }
+  }
+  return messageDecisionFiches(erreur, parDefaut);
+}

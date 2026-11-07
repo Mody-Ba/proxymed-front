@@ -84,4 +84,37 @@ describe('Routes /senior et /junior', () => {
       expect(TestBed.inject(Router).url).toBe('/connexion');
     },
   );
+
+  it.each(['/senior/fiches', '/senior/fiches-visees'])('le senior ouvre %s', async (url) => {
+    connecter('MEDECIN_SENIOR');
+    const harnais = await RouterTestingHarness.create();
+    await harnais.navigateByUrl(url);
+
+    expect(TestBed.inject(Router).url).toBe(url);
+  });
+
+  it.each([
+    ['ADMIN', '/senior/fiches'],
+    ['ADMIN', '/senior/fiches-visees'],
+    ['MEDECIN_JUNIOR', '/senior/fiches'],
+    ['MEDECIN_JUNIOR', '/senior/fiches-visees'],
+    ['UTILISATEUR', '/senior/fiches'],
+    ['UTILISATEUR', '/senior/fiches-visees'],
+  ] as const)('le role %s qui ouvre %s est renvoye vers /acces-refuse', async (role, url) => {
+    connecter(role);
+    const harnais = await RouterTestingHarness.create();
+    await harnais.navigateByUrl(url);
+
+    expect(TestBed.inject(Router).url).toBe('/acces-refuse');
+  });
+
+  it.each(['/senior/fiches', '/senior/fiches-visees'])(
+    'sans connexion, %s renvoie vers /connexion',
+    async (url) => {
+      const harnais = await RouterTestingHarness.create();
+      await harnais.navigateByUrl(url);
+
+      expect(TestBed.inject(Router).url).toBe('/connexion');
+    },
+  );
 });

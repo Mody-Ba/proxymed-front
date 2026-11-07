@@ -1,7 +1,7 @@
 <section class="conteneur-page">
   <app-entete-page
     [titre]="'Bienvenue, ' + auth.nomAffiche()"
-    sousTitre="Espace médecin senior : vous étudiez les demandes de consultation des patients."
+    sousTitre="Espace médecin senior : vous étudiez les demandes de consultation et visez les fiches des patients."
   />
 
   <div class="entrees">
@@ -10,6 +10,18 @@
       icone="pending_actions"
       titre="Demandes en attente"
       texte="Étudiez les nouvelles demandes et décidez de leur suite."
+    />
+    <app-entree-accueil
+      lien="/senior/fiches"
+      icone="fact_check"
+      titre="Fiches à viser"
+      texte="Consultez les fiches remplies importées, visez-les ou renvoyez-les avec un motif."
+    />
+    <app-entree-accueil
+      lien="/senior/fiches-visees"
+      icone="verified"
+      titre="Fiches visées"
+      texte="Retrouvez les fiches visées et téléchargez leur rapport."
     />
   </div>
 

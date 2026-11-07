@@ -1,0 +1,260 @@
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Fiches à viser"
+    sousTitre="Fiches remplies importées et en attente de visa, de la plus ancienne à la plus récente."
+    icone="fact_check"
+  >
+    <a mat-stroked-button routerLink="/senior/fiches-visees">
+      <mat-icon fontIcon="verified" aria-hidden="true" />Fiches visées
+    </a>
+  </app-entete-page>
+
+  @if (resultat(); as r) {
+    <div class="resultats" role="region" aria-labelledby="titre-resultats">
+      <h2 id="titre-resultats" class="sous-titre">
+        Résultat {{ r.action === 'visa' ? 'du visa' : 'du renvoi' }}
+      </h2>
+      <app-encadre [type]="r.avecErreurs ? 'avertissement' : 'succes'" role="status" class="resume">
+        <p>{{ r.resume }}</p>
+      </app-encadre>
+      <div class="tableau tableau-seul">
+        <table mat-table [dataSource]="r.lignes">
+          <caption class="cdk-visually-hidden">
+            Résultat fiche par fiche.
+          </caption>
+          <ng-container matColumnDef="patient">
+            <th mat-header-cell *matHeaderCellDef scope="col">Patient</th>
+            <td mat-cell *matCellDef="let ligne" data-libelle="Patient" class="cellule-nom">
+              {{ ligne.patient }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="statut">
+            <th mat-header-cell *matHeaderCellDef scope="col">Résultat</th>
+            <td mat-cell *matCellDef="let ligne" data-libelle="Résultat">
+              <span [class]="'statut statut-' + ligne.statut">{{ ligne.libelleStatut }}</span>
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="message">
+            <th mat-header-cell *matHeaderCellDef scope="col">Message</th>
+            <td mat-cell *matCellDef="let ligne" data-libelle="Message" class="cellule-message">
+              {{ ligne.message }}
+            </td>
+          </ng-container>
+          <ng-container matColumnDef="rapport">
+            <th mat-header-cell *matHeaderCellDef scope="col">
+              <span class="cdk-visually-hidden">Rapport</span>
+            </th>
+            <td mat-cell *matCellDef="let ligne" data-libelle="Rapport" class="cellule-action">
+              @if (ligne.rapport) {
+                @let cle = 'rapport:' + ligne.visiteId;
+                <button
+                  mat-stroked-button
+                  type="button"
+                  class="bouton-rapport"
+                  [disabled]="telechargement() !== null"
+                  [attr.aria-busy]="telechargement() === cle"
+                  [attr.aria-label]="'Télécharger le rapport de ' + ligne.patient"
+                  (click)="telechargerRapport(ligne.visiteId)"
+                >
+                  @if (telechargement() === cle) {
+                    <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+                  } @else {
+                    <mat-icon fontIcon="description" aria-hidden="true" />
+                  }
+                  Télécharger le rapport
+                </button>
+              }
+            </td>
+          </ng-container>
+          <tr mat-header-row *matHeaderRowDef="colonnesResultat"></tr>
+          <tr mat-row *matRowDef="let ligne; columns: colonnesResultat"></tr>
+        </table>
+      </div>
+    </div>
+  }
+
+  @if (erreurAction(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut erreur-action">
+      <p>{{ message }}</p>
+    </app-encadre>
+  }
+
+  @if (erreurTelechargement(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut erreur-telechargement">
+      <p>{{ message }}</p>
+    </app-encadre>
+  }
+
+  <div class="barre-actions" role="group" aria-label="Actions sur la sélection">
+    <p class="compteur" aria-live="polite">
+      <strong>{{ nombreSelectionnees() }}</strong> / {{ max }} fiche{{
+        nombreSelectionnees() > 1 ? 's' : ''
+      }}
+      sélectionnée{{ nombreSelectionnees() > 1 ? 's' : '' }}
+    </p>
+    <div class="boutons">
+      <button
+        mat-flat-button
+        type="button"
+        class="bouton-viser"
+        [disabled]="occupe() || !nombreSelectionnees()"
+        [attr.aria-busy]="action() === 'visa'"
+        (click)="viserSelection()"
+      >
+        @if (action() === 'visa') {
+          <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+        } @else {
+          <mat-icon fontIcon="verified" aria-hidden="true" />
+        }
+        Viser la sélection
+      </button>
+      <button
+        mat-stroked-button
+        type="button"
+        class="bouton-renvoyer"
+        [disabled]="occupe() || !nombreSelectionnees()"
+        [attr.aria-busy]="action() === 'renvoi'"
+        (click)="renvoyerSelection()"
+      >
+        @if (action() === 'renvoi') {
+          <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+        } @else {
+          <mat-icon fontIcon="undo" aria-hidden="true" />
+        }
+        Renvoyer la sélection
+      </button>
+      @if (nombreSelectionnees()) {
+        <button mat-button type="button" [disabled]="occupe()" (click)="viderSelection()">
+          Tout désélectionner
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (avertissement(); as texte) {
+    <app-encadre type="avertissement" role="status" class="encadre-haut avertissement-selection">
+      <p>{{ texte }}</p>
+    </app-encadre>
+  }
+
+  <div class="zone-progression">
+    @if (chargement() || occupe()) {
+      <mat-progress-bar
+        mode="indeterminate"
+        [attr.aria-label]="occupe() ? 'Traitement des fiches en cours' : 'Chargement des fiches'"
+      />
+    }
+  </div>
+
+  @if (erreurChargement(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut">
+      <p>{{ message }}</p>
+      <button mat-stroked-button type="button" class="reessayer" (click)="charger()">
+        <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+      </button>
+    </app-encadre>
+  } @else if (chargement() && !fiches().length) {
+    <p class="texte-aide">Chargement des fiches…</p>
+  } @else if (!total()) {
+    <app-etat-vide icone="task_alt" titre="Aucune fiche en attente de visa." />
+  } @else {
+    <div class="tableau" [class.rafraichissement]="chargement()" [attr.aria-busy]="chargement()">
+      <table mat-table [dataSource]="fiches()">
+        <caption class="cdk-visually-hidden">
+          Fiches en attente de visa, de la plus ancienne à la plus récente.
+        </caption>
+
+        <ng-container matColumnDef="selection">
+          <th mat-header-cell *matHeaderCellDef scope="col" class="cellule-case">
+            <mat-checkbox
+              class="case-page"
+              aria-label="Sélectionner toutes les fiches de cette page"
+              [checked]="pageEntierementCochee()"
+              [indeterminate]="pagePartiellementCochee()"
+              [disabled]="occupe()"
+              (change)="basculerPage()"
+            />
+          </th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Sélection" class="cellule-case">
+            <mat-checkbox
+              class="case-fiche"
+              [aria-label]="'Sélectionner la fiche de ' + fiche.nomPatient"
+              [checked]="estCochee(fiche)"
+              [disabled]="occupe() || (limiteAtteinte() && !estCochee(fiche))"
+              (change)="basculer(fiche)"
+            />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="patient">
+          <th mat-header-cell *matHeaderCellDef scope="col">Patient</th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Patient" class="cellule-nom">
+            <span class="nom">{{ fiche.nomPatient }}</span>
+            @if (fiche.numeroDossierProxymed) {
+              <span class="dossier">Dossier {{ fiche.numeroDossierProxymed }}</span>
+            }
+            @if (fiche.motifRenvoi) {
+              <span class="reimport">Réimportée après renvoi : {{ fiche.motifRenvoi }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="typeVisite">
+          <th mat-header-cell *matHeaderCellDef scope="col">Type de visite</th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Type de visite">
+            {{ libelleTypeVisite(fiche.typeVisite) }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateImport">
+          <th mat-header-cell *matHeaderCellDef scope="col">Importée le</th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Importée le">
+            {{ fiche.dateImport | date: "dd/MM/yyyy 'à' HH:mm" }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="scan">
+          <th mat-header-cell *matHeaderCellDef scope="col">
+            <span class="cdk-visually-hidden">Scan</span>
+          </th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Scan" class="cellule-action">
+            @let cle = 'scan:' + fiche.visiteId;
+            <button
+              mat-icon-button
+              type="button"
+              class="bouton-scan"
+              [disabled]="telechargement() !== null"
+              [attr.aria-busy]="telechargement() === cle"
+              [attr.aria-label]="'Télécharger le scan de la fiche de ' + fiche.nomPatient"
+              matTooltip="Télécharger le scan (PDF)"
+              (click)="telechargerScan(fiche.visiteId)"
+            >
+              @if (telechargement() === cle) {
+                <mat-spinner diameter="18" aria-hidden="true" />
+              } @else {
+                <mat-icon fontIcon="picture_as_pdf" aria-hidden="true" />
+              }
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+        <tr
+          mat-row
+          *matRowDef="let fiche; columns: colonnes"
+          [class.ligne-cochee]="estCochee(fiche)"
+        ></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="total()"
+      [pageIndex]="page()"
+      [pageSize]="taille()"
+      [pageSizeOptions]="taillesPage"
+      [disabled]="chargement() || occupe()"
+      (page)="changerPage($event)"
+      aria-label="Pagination des fiches à viser"
+    />
+  }
+</section>

@@ -1,0 +1,30 @@
+<form class="formulaire-dialogue" [formGroup]="formulaire" (ngSubmit)="renvoyer()" novalidate>
+  <h2 mat-dialog-title>Renvoyer la sélection</h2>
+
+  <mat-dialog-content>
+    <p class="contexte">
+      {{ donnees.nombre }} fiche{{ donnees.nombre > 1 ? 's' : '' }} sélectionnée{{
+        donnees.nombre > 1 ? 's' : ''
+      }}. Le même motif s’applique à toutes ; l’administrateur pourra importer une nouvelle version.
+    </p>
+
+    <mat-form-field appearance="outline" class="champ">
+      <mat-label>Motif du renvoi</mat-label>
+      <textarea matInput formControlName="motif" rows="5" autocomplete="off" required></textarea>
+      <mat-hint>Indiquez ce qui doit être corrigé sur la fiche.</mat-hint>
+      <mat-hint align="end" class="compteur" [class.limite]="motifSaisi().length > motifMax">
+        {{ motifSaisi().length }} / {{ motifMax }}
+      </mat-hint>
+      @if (messageErreurMotif(); as message) {
+        <mat-error>{{ message }}</mat-error>
+      }
+    </mat-form-field>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button mat-button type="button" mat-dialog-close>Annuler</button>
+    <button mat-flat-button type="submit" class="bouton-principal confirmer-renvoi">
+      <mat-icon fontIcon="undo" aria-hidden="true" />Renvoyer
+    </button>
+  </mat-dialog-actions>
+</form>
