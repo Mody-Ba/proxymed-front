@@ -62,6 +62,39 @@ describe('Routes /admin', () => {
     expect(TestBed.inject(Router).url).toBe('/acces-refuse');
   });
 
+  it.each(['/admin/fiches/impression', '/admin/fiches/import'])("l'admin ouvre %s", async (url) => {
+    connecter('ADMIN');
+    const harnais = await RouterTestingHarness.create();
+    await harnais.navigateByUrl(url);
+
+    expect(TestBed.inject(Router).url).toBe(url);
+  });
+
+  it.each([
+    ['MEDECIN_JUNIOR', '/admin/fiches/impression'],
+    ['MEDECIN_JUNIOR', '/admin/fiches/import'],
+    ['MEDECIN_SENIOR', '/admin/fiches/impression'],
+    ['MEDECIN_SENIOR', '/admin/fiches/import'],
+    ['UTILISATEUR', '/admin/fiches/impression'],
+    ['UTILISATEUR', '/admin/fiches/import'],
+  ] as const)('le role %s qui ouvre %s est renvoye vers /acces-refuse', async (role, url) => {
+    connecter(role);
+    const harnais = await RouterTestingHarness.create();
+    await harnais.navigateByUrl(url);
+
+    expect(TestBed.inject(Router).url).toBe('/acces-refuse');
+  });
+
+  it.each(['/admin/fiches/impression', '/admin/fiches/import'])(
+    'sans connexion, %s renvoie vers /connexion',
+    async (url) => {
+      const harnais = await RouterTestingHarness.create();
+      await harnais.navigateByUrl(url);
+
+      expect(TestBed.inject(Router).url).toBe('/connexion');
+    },
+  );
+
   it('sans connexion, /admin/comptes renvoie vers /connexion', async () => {
     const harnais = await RouterTestingHarness.create();
     await harnais.navigateByUrl('/admin/comptes');

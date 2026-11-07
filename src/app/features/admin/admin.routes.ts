@@ -20,4 +20,15 @@ export const routes: Routes = [
     title: 'Créer un médecin · PROXYMED',
     loadComponent: () => import('./nouveau-compte/nouveau-compte').then((m) => m.NouveauCompte),
   },
+  {
+    path: 'fiches/impression',
+    title: 'Impression des fiches · PROXYMED',
+    loadComponent: () =>
+      import('./impression-fiches/impression-fiches').then((m) => m.ImpressionFiches),
+  },
+  {
+    path: 'fiches/import',
+    title: 'Importation des fiches remplies · PROXYMED',
+    loadComponent: () => import('./import-fiches/import-fiches').then((m) => m.ImportFiches),
+  },
 ];

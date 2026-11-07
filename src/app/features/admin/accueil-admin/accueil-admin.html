@@ -6,8 +6,8 @@
 
   <app-encadre type="info" icone="shield" titre="Aucune donnée médicale" class="rappel">
     <p>
-      L'administrateur gère les comptes : il n'a jamais accès aux demandes de consultation ni aux
-      fiches des patients.
+      L'administrateur gère les comptes, imprime et importe les fiches papier : il n'a jamais accès
+      aux demandes de consultation ni au contenu médical des fiches.
     </p>
   </app-encadre>
 
@@ -23,6 +23,18 @@
       icone="person_add"
       titre="Créer un médecin"
       texte="Créez le compte d'un médecin junior ou senior ; il reçoit un mot de passe temporaire par courriel."
+    />
+    <app-entree-accueil
+      lien="/admin/fiches/impression"
+      icone="print"
+      titre="Imprimer des fiches"
+      texte="Sélectionnez des patients et imprimez leurs fiches vierges, avec leur code QR, en un seul PDF."
+    />
+    <app-entree-accueil
+      lien="/admin/fiches/import"
+      icone="upload_file"
+      titre="Importer les fiches remplies"
+      texte="Importez les scans PDF des fiches remplies : chacune est rangée d'après son code QR."
     />
   </div>
 
