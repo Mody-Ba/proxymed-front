@@ -158,3 +158,105 @@ export function messageTelechargementFiche(erreur: unknown, ficheSignee: boolean
 export function estIntrouvable(erreur: unknown): boolean {
   return erreur instanceof HttpErrorResponse && erreur.status === 404;
 }
+
+// ---------- Parcours papier de l'admin (impression et import en lot) ----------
+
+export const MESSAGE_ADMIN_ACCES_REFUSE =
+  'Votre rôle ne permet pas cette action : elle est réservée à l’administrateur.';
+export const MESSAGE_SESSION_EXPIREE =
+  'Votre session n’est plus valide. Veuillez vous reconnecter.';
+export const MESSAGE_IMPRESSION_INVALIDE =
+  'La demande d’impression a été refusée : vérifiez la sélection et le type de visite.';
+export const MESSAGE_LOT_INVALIDE =
+  'L’envoi a été refusé : ajoutez entre 1 et 20 fichiers PDF puis réessayez.';
+export const MESSAGE_LOT_TROP_VOLUMINEUX =
+  'L’envoi est trop volumineux (100 Mo au total au plus) : importez les fichiers en plusieurs fois.';
+export const MESSAGE_LOT_FORMAT =
+  'Le format de l’envoi n’est pas accepté : seuls des fichiers PDF sont acceptés.';
+
+/** Message du serveur, suivi du detail de validation s'il y en a un. */
+function messageEtDetails(erreur: unknown, parDefaut: string): string {
+  const details = detailsErreur(erreur);
+  const message = messageErreur(erreur, parDefaut);
+  return details.length ? `${message} : ${details.join(' ; ')}` : message;
+}
+
+/**
+ * Impression combinee : 400 / 403 / 404 avec le message du serveur (corps JSON relu par le
+ * service), 401 session expiree (l'intercepteur deconnecte deja).
+ */
+export function messageImpressionFiches(erreur: unknown): string {
+  if (erreur instanceof HttpErrorResponse) {
+    switch (erreur.status) {
+      case 0:
+        return MESSAGE_INJOIGNABLE;
+      case 401:
+        return messageErreur(erreur, MESSAGE_SESSION_EXPIREE);
+      case 403:
+        return messageErreur(erreur, MESSAGE_ADMIN_ACCES_REFUSE);
+      case 400:
+        return messageEtDetails(erreur, MESSAGE_IMPRESSION_INVALIDE);
+      case 404:
+        return messageErreur(
+          erreur,
+          'Un patient sélectionné est introuvable : aucune fiche n’a été créée.',
+        );
+    }
+  }
+  return messageErreur(erreur, 'Les fiches n’ont pas pu être imprimées. Réessayez.');
+}
+
+/** Import en lot refuse en entier (400, 401, 403, 413, 415 en JSON). */
+export function messageImportLot(erreur: unknown): string {
+  if (erreur instanceof HttpErrorResponse) {
+    switch (erreur.status) {
+      case 0:
+        return MESSAGE_IMPORT_INTERROMPU;
+      case 401:
+        return messageErreur(erreur, MESSAGE_SESSION_EXPIREE);
+      case 403:
+        return messageErreur(erreur, MESSAGE_ADMIN_ACCES_REFUSE);
+      case 400:
+        return messageErreur(erreur, MESSAGE_LOT_INVALIDE);
+      case 413:
+        return messageErreur(erreur, MESSAGE_LOT_TROP_VOLUMINEUX);
+      case 415:
+        return messageErreur(erreur, MESSAGE_LOT_FORMAT);
+    }
+  }
+  return messageErreur(erreur, 'L’import n’a pas pu être effectué. Réessayez.');
+}
+
+export const MESSAGE_RESULTAT_IMPORTEE =
+  'Fiche rangée dans le dossier du patient, en attente de visa.';
+export const MESSAGE_RESULTAT_REIMPORTEE =
+  'Fiche renvoyée remplacée par ce scan, de nouveau en attente de visa.';
+export const MESSAGE_RESULTAT_ERREUR_INTERNE =
+  'L’import de ce fichier a échoué pour une raison imprévue. Réessayez plus tard.';
+
+/** Code d'un fichier refuse dans le lot -> message lisible (jamais le message brut, il contient des ids). */
+const MESSAGES_RESULTAT_PAR_CODE: Record<number, string> = {
+  400: MESSAGE_IMPORT_FICHE_ILLISIBLE,
+  404: MESSAGE_IMPORT_INTROUVABLE,
+  409: MESSAGE_IMPORT_DEJA_IMPORTEE,
+  413: MESSAGE_IMPORT_TROP_VOLUMINEUX,
+  415: MESSAGE_IMPORT_NON_PDF,
+  422: MESSAGE_IMPORT_QR_INTROUVABLE,
+  500: MESSAGE_RESULTAT_ERREUR_INTERNE,
+};
+
+/** Message d'une ligne du resultat d'import en lot. */
+export function messageResultatImport(resultat: {
+  resultat: string;
+  code: number;
+  erreur?: string;
+  reimportee?: boolean;
+}): string {
+  if (resultat.resultat === 'IMPORTEE') {
+    return resultat.reimportee ? MESSAGE_RESULTAT_REIMPORTEE : MESSAGE_RESULTAT_IMPORTEE;
+  }
+  if (resultat.erreur === ERREUR_REQUETE_INVALIDE) {
+    return MESSAGE_IMPORT_FICHIER_ABSENT;
+  }
+  return MESSAGES_RESULTAT_PAR_CODE[resultat.code] ?? MESSAGE_INATTENDU;
+}

@@ -1,0 +1,186 @@
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Impression des fiches"
+    sousTitre="Sélectionnez les patients et le type de visite : un seul PDF réunit une fiche vierge par patient, chacune avec son code QR."
+    icone="print"
+  />
+
+  <div class="barre-recherche">
+    <mat-form-field appearance="outline" class="champ-recherche" subscriptSizing="dynamic">
+      <mat-label>Rechercher un patient</mat-label>
+      <mat-icon matPrefix fontIcon="search" aria-hidden="true" />
+      <input
+        matInput
+        type="search"
+        autocomplete="off"
+        placeholder="Nom ou numéro de dossier"
+        [ngModel]="recherche()"
+        (ngModelChange)="rechercher($event)"
+      />
+    </mat-form-field>
+  </div>
+
+  <div class="zone-progression">
+    @if (chargement()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Chargement des patients" />
+    }
+  </div>
+
+  @if (erreurChargement(); as erreur) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut">
+      <p>{{ erreur }}</p>
+      <button mat-stroked-button type="button" class="reessayer" (click)="charger()">
+        <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+      </button>
+    </app-encadre>
+  } @else if (chargement() && !patients().length) {
+    <p class="texte-aide">Chargement des patients…</p>
+  } @else if (!filtres().length) {
+    <app-etat-vide
+      icone="person_search"
+      [titre]="
+        recherche() ? 'Aucun patient ne correspond à la recherche.' : 'Aucun patient enregistré.'
+      "
+    />
+  } @else {
+    <div class="tableau">
+      <table mat-table [dataSource]="pageCourante()">
+        <caption class="cdk-visually-hidden">
+          Patients, par ordre alphabétique. Cochez ceux dont la fiche doit être imprimée.
+        </caption>
+
+        <ng-container matColumnDef="selection">
+          <th mat-header-cell *matHeaderCellDef scope="col" class="cellule-case">
+            <mat-checkbox
+              class="case-page"
+              aria-label="Sélectionner tous les patients de cette page"
+              [checked]="pageEntierementCochee()"
+              [indeterminate]="pagePartiellementCochee()"
+              [disabled]="impression()"
+              (change)="basculerPage()"
+            />
+          </th>
+          <td mat-cell *matCellDef="let patient" data-libelle="Sélection" class="cellule-case">
+            <mat-checkbox
+              class="case-patient"
+              [attr.data-id]="patient.id"
+              [aria-label]="'Sélectionner ' + patient.nomComplet"
+              [checked]="estCoche(patient)"
+              [disabled]="impression() || (limiteAtteinte() && !estCoche(patient))"
+              (change)="basculer(patient)"
+            />
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="nomComplet">
+          <th mat-header-cell *matHeaderCellDef scope="col">Nom</th>
+          <td mat-cell *matCellDef="let patient" data-libelle="Nom" class="cellule-nom">
+            {{ patient.nomComplet }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="numeroDossier">
+          <th mat-header-cell *matHeaderCellDef scope="col">N° de dossier</th>
+          <td mat-cell *matCellDef="let patient" data-libelle="N° de dossier">
+            {{ patient.numeroDossierProxymed ?? '—' }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="dateNaissance">
+          <th mat-header-cell *matHeaderCellDef scope="col">Date de naissance</th>
+          <td mat-cell *matCellDef="let patient" data-libelle="Date de naissance">
+            {{ patient.dateNaissance ? (patient.dateNaissance | date: 'dd/MM/yyyy') : '—' }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+        <tr
+          mat-row
+          *matRowDef="let patient; columns: colonnes"
+          [class.ligne-cochee]="estCoche(patient)"
+        ></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="filtres().length"
+      [pageIndex]="page()"
+      [pageSize]="taille()"
+      [pageSizeOptions]="taillesPage"
+      (page)="changerPage($event)"
+      aria-label="Pagination des patients"
+    />
+  }
+
+  <div class="panneau-impression" role="group" aria-labelledby="titre-impression">
+    <h2 id="titre-impression" class="titre-impression">Impression</h2>
+
+    <p class="compteur" aria-live="polite">
+      <strong>{{ nombreSelectionnes() }}</strong> / {{ max }} patient{{
+        nombreSelectionnes() > 1 ? 's' : ''
+      }}
+      sélectionné{{ nombreSelectionnes() > 1 ? 's' : '' }}
+      @if (nombreSelectionnes()) {
+        <button
+          mat-button
+          type="button"
+          class="vider"
+          [disabled]="impression()"
+          (click)="viderSelection()"
+        >
+          Tout désélectionner
+        </button>
+      }
+    </p>
+
+    @if (avertissement(); as texte) {
+      <app-encadre type="avertissement" role="status" class="avertissement-selection">
+        <p>{{ texte }}</p>
+      </app-encadre>
+    }
+
+    <p id="libelle-type-visite" class="libelle-type">Type de visite</p>
+    <mat-button-toggle-group
+      class="type-visite"
+      aria-labelledby="libelle-type-visite"
+      [value]="typeVisite()"
+      [disabled]="impression()"
+      (change)="typeVisite.set($event.value)"
+    >
+      @for (type of typesVisite; track type.valeur) {
+        <mat-button-toggle [value]="type.valeur">{{ type.libelle }}</mat-button-toggle>
+      }
+    </mat-button-toggle-group>
+
+    <div class="actions">
+      <button
+        mat-flat-button
+        type="button"
+        class="bouton-imprimer"
+        [disabled]="!peutImprimer()"
+        [attr.aria-busy]="impression()"
+        (click)="imprimer()"
+      >
+        @if (impression()) {
+          <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+        } @else {
+          <mat-icon fontIcon="print" aria-hidden="true" />
+        }
+        Imprimer
+      </button>
+      @if (!typeVisite() && nombreSelectionnes()) {
+        <span class="texte-aide">Choisissez le type de visite.</span>
+      }
+    </div>
+
+    @if (message(); as m) {
+      <app-encadre
+        [type]="m.type"
+        [attr.role]="m.type === 'succes' ? 'status' : 'alert'"
+        class="message-impression"
+      >
+        <p>{{ m.texte }}</p>
+      </app-encadre>
+    }
+  </div>
+</section>

@@ -56,7 +56,7 @@ describe('BarreNavigation', () => {
     expect(liens).toEqual(attendus);
   });
 
-  it("montre a l'administrateur les comptes seulement, aucun lien medical", () => {
+  it("montre a l'administrateur les comptes et les fiches papier, aucun lien medical", () => {
     const liens = Array.from(afficher('ADMIN').querySelectorAll('.liens a')).map((a) => [
       a.textContent!.trim(),
       a.getAttribute('href'),
@@ -65,6 +65,8 @@ describe('BarreNavigation', () => {
     expect(liens).toEqual([
       ['Comptes', '/admin/comptes'],
       ['Créer un médecin', '/admin/comptes/nouveau'],
+      ['Impression des fiches', '/admin/fiches/impression'],
+      ['Import des fiches', '/admin/fiches/import'],
     ]);
   });
 

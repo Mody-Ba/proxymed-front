@@ -1,0 +1,172 @@
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Importation des fiches remplies"
+    sousTitre="Importez les scans PDF des fiches remplies : chacune est rangée d'après son code QR dans le dossier de son patient."
+    icone="upload_file"
+  />
+
+  <div
+    class="zone-depot"
+    [class.survol]="survol()"
+    [class.inactive]="envoi()"
+    (dragover)="survoler($event)"
+    (dragleave)="quitter($event)"
+    (drop)="deposer($event)"
+  >
+    <mat-icon fontIcon="cloud_upload" aria-hidden="true" class="icone-depot" />
+    <p class="texte-depot">Glissez-déposez les fichiers PDF ici, ou</p>
+    <input
+      #selecteur
+      type="file"
+      multiple
+      accept=".pdf,application/pdf"
+      class="selecteur-fichier"
+      tabindex="-1"
+      aria-hidden="true"
+      (change)="fichiersChoisis($event)"
+    />
+    <button
+      mat-stroked-button
+      type="button"
+      class="bouton-choisir"
+      aria-describedby="aide-import"
+      [disabled]="envoi()"
+      (click)="selecteur.click()"
+    >
+      <mat-icon fontIcon="folder_open" aria-hidden="true" />Choisir des fichiers
+    </button>
+    <p id="aide-import" class="texte-aide">
+      PDF uniquement, {{ max }} fichiers au plus, 10&nbsp;Mo au plus par fichier.
+    </p>
+  </div>
+
+  @if (refus().length) {
+    <app-encadre type="erreur" role="alert" class="refus">
+      <ul>
+        @for (texte of refus(); track $index) {
+          <li>{{ texte }}</li>
+        }
+      </ul>
+    </app-encadre>
+  }
+
+  @if (fichiers().length) {
+    <div class="liste-fichiers" role="group" aria-labelledby="titre-fichiers">
+      <h2 id="titre-fichiers" class="sous-titre">
+        Fichiers à importer ({{ fichiers().length }} / {{ max }})
+      </h2>
+      <ul>
+        @for (fichier of fichiers(); track $index) {
+          <li class="fichier">
+            <mat-icon fontIcon="picture_as_pdf" aria-hidden="true" />
+            <span class="nom">{{ fichier.name }}</span>
+            <span class="taille">{{ tailleLisible(fichier.size) }}</span>
+            <button
+              mat-icon-button
+              type="button"
+              class="retirer"
+              [disabled]="envoi()"
+              [attr.aria-label]="'Retirer ' + fichier.name"
+              (click)="retirer($index)"
+            >
+              <mat-icon fontIcon="close" aria-hidden="true" />
+            </button>
+          </li>
+        }
+      </ul>
+      <button mat-button type="button" [disabled]="envoi()" (click)="toutRetirer()">
+        Tout retirer
+      </button>
+    </div>
+  }
+
+  <div class="actions">
+    <button
+      mat-flat-button
+      type="button"
+      class="bouton-importer"
+      [disabled]="envoi() || !fichiers().length"
+      [attr.aria-busy]="envoi()"
+      (click)="importer()"
+    >
+      @if (envoi()) {
+        <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+      } @else {
+        <mat-icon fontIcon="upload" aria-hidden="true" />
+      }
+      Importer
+    </button>
+  </div>
+
+  <div class="zone-progression">
+    @if (envoi()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Import des fiches en cours" />
+    }
+  </div>
+
+  @if (erreur(); as texte) {
+    <app-encadre type="erreur" role="alert" class="erreur-import">
+      <p>{{ texte }}</p>
+    </app-encadre>
+  }
+
+  @if (resume(); as texte) {
+    <app-encadre
+      [type]="reponse()!.nombreErreurs ? 'avertissement' : 'succes'"
+      role="status"
+      class="resume-import"
+    >
+      <p>{{ texte }}</p>
+    </app-encadre>
+
+    <div class="tableau">
+      <table mat-table [dataSource]="lignes()">
+        <caption class="cdk-visually-hidden">
+          Résultat de l'import, fichier par fichier.
+        </caption>
+
+        <ng-container matColumnDef="nomFichier">
+          <th mat-header-cell *matHeaderCellDef scope="col">Fichier</th>
+          <td mat-cell *matCellDef="let ligne" data-libelle="Fichier" class="cellule-fichier">
+            {{ ligne.nomFichier }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="statut">
+          <th mat-header-cell *matHeaderCellDef scope="col">Statut</th>
+          <td mat-cell *matCellDef="let ligne" data-libelle="Statut">
+            <span [class]="'statut statut-' + ligne.statut">
+              <mat-icon
+                [fontIcon]="
+                  ligne.statut === 'importe'
+                    ? 'check_circle'
+                    : ligne.statut === 'deja-importe'
+                      ? 'info'
+                      : 'error'
+                "
+                aria-hidden="true"
+              />{{ ligne.libelleStatut }}
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="patient">
+          <th mat-header-cell *matHeaderCellDef scope="col">Patient</th>
+          <td mat-cell *matCellDef="let ligne" data-libelle="Patient" class="cellule-patient">
+            {{ ligne.patient }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="message">
+          <th mat-header-cell *matHeaderCellDef scope="col">Message</th>
+          <td mat-cell *matCellDef="let ligne" data-libelle="Message" class="cellule-message">
+            {{ ligne.message }}
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+        <tr mat-row *matRowDef="let ligne; columns: colonnes"></tr>
+      </table>
+    </div>
+  }
+</section>

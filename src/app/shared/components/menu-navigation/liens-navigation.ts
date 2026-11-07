@@ -25,5 +25,8 @@ export const LIENS_PAR_ROLE: Record<Role, readonly LienNavigation[]> = {
   ADMIN: [
     { libelle: 'Comptes', lien: '/admin/comptes', icone: 'manage_accounts', exact: true },
     { libelle: 'Créer un médecin', lien: '/admin/comptes/nouveau', icone: 'person_add' },
+    // Fiches papier : identites et fichiers seulement, jamais leur contenu medical.
+    { libelle: 'Impression des fiches', lien: '/admin/fiches/impression', icone: 'print' },
+    { libelle: 'Import des fiches', lien: '/admin/fiches/import', icone: 'upload_file' },
   ],
 };

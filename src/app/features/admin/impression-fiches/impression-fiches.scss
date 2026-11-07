@@ -1,0 +1,84 @@
+@use '../../../shared/styles/tableau';
+
+@include tableau.cadre;
+
+.encadre-haut {
+  margin: 0 0 var(--pm-espace-4);
+}
+
+.reessayer {
+  margin-top: var(--pm-espace-2);
+}
+
+.champ-recherche {
+  width: 100%;
+  max-width: 480px;
+  margin-bottom: var(--pm-espace-3);
+}
+
+.cellule-case {
+  width: 56px;
+}
+
+.cellule-nom {
+  font-weight: 500;
+  overflow-wrap: anywhere;
+}
+
+tr.ligne-cochee {
+  background: var(--mat-sys-secondary-container);
+}
+
+.panneau-impression {
+  margin-top: var(--pm-espace-4);
+  padding: var(--pm-espace-4);
+  border: 1px solid var(--mat-sys-outline-variant);
+  border-radius: var(--pm-rayon);
+}
+
+.titre-impression {
+  margin: 0 0 var(--pm-espace-2);
+  font: var(--mat-sys-title-medium);
+}
+
+.compteur {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pm-espace-2);
+  margin: 0 0 var(--pm-espace-3);
+}
+
+.avertissement-selection {
+  display: block;
+  margin-bottom: var(--pm-espace-3);
+}
+
+.libelle-type {
+  margin: 0 0 var(--pm-espace-2);
+  font: var(--mat-sys-label-large);
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.type-visite {
+  flex-wrap: wrap;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--pm-espace-3);
+  margin-top: var(--pm-espace-4);
+}
+
+.indicateur {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.message-impression {
+  display: block;
+  margin-top: var(--pm-espace-4);
+}

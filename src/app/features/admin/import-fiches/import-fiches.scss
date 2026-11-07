@@ -1,0 +1,139 @@
+@use '../../../shared/styles/tableau';
+
+@include tableau.cadre;
+
+// Le tableau des resultats n'a pas de paginateur : coins arrondis en bas aussi.
+.tableau {
+  border-radius: var(--pm-rayon);
+}
+
+.zone-depot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pm-espace-2);
+  padding: var(--pm-espace-5, 32px) var(--pm-espace-4);
+  border: 2px dashed var(--mat-sys-outline);
+  border-radius: var(--pm-rayon);
+  background: var(--mat-sys-surface-container-low);
+  text-align: center;
+  transition:
+    background 150ms,
+    border-color 150ms;
+
+  &.survol {
+    border-color: var(--mat-sys-primary);
+    background: var(--mat-sys-primary-container);
+  }
+
+  &.inactive {
+    opacity: 0.6;
+  }
+}
+
+.icone-depot {
+  width: 40px;
+  height: 40px;
+  font-size: 40px;
+  color: var(--mat-sys-primary);
+}
+
+.texte-depot {
+  margin: 0;
+}
+
+.selecteur-fichier {
+  display: none;
+}
+
+.refus,
+.erreur-import,
+.resume-import {
+  display: block;
+  margin-top: var(--pm-espace-4);
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+  }
+}
+
+.liste-fichiers {
+  margin-top: var(--pm-espace-4);
+
+  ul {
+    margin: 0 0 var(--pm-espace-2);
+    padding: 0;
+    list-style: none;
+  }
+}
+
+.sous-titre {
+  margin: 0 0 var(--pm-espace-2);
+  font: var(--mat-sys-title-small);
+}
+
+.fichier {
+  display: flex;
+  align-items: center;
+  gap: var(--pm-espace-2);
+  padding: var(--pm-espace-1) 0;
+  border-bottom: 1px solid var(--mat-sys-outline-variant);
+
+  .nom {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .taille {
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+    white-space: nowrap;
+  }
+}
+
+.actions {
+  margin-top: var(--pm-espace-4);
+}
+
+.indicateur {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.resume-import + .tableau {
+  margin-top: var(--pm-espace-3);
+}
+
+.cellule-fichier,
+.cellule-message {
+  overflow-wrap: anywhere;
+}
+
+.statut {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 500;
+  white-space: nowrap;
+
+  .mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
+  }
+}
+
+.statut-importe .mat-icon {
+  color: var(--mat-sys-primary);
+}
+
+.statut-deja-importe .mat-icon {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.statut-erreur .mat-icon {
+  color: var(--mat-sys-error);
+}
