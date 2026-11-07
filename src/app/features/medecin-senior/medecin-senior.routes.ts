@@ -22,4 +22,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./detail-demande-senior/detail-demande-senior').then((m) => m.DetailDemandeSenior),
   },
+  {
+    path: 'fiches',
+    title: 'Fiches à viser · PROXYMED',
+    loadComponent: () => import('./fiches-a-viser/fiches-a-viser').then((m) => m.FichesAViser),
+  },
+  {
+    path: 'fiches-visees',
+    title: 'Fiches visées · PROXYMED',
+    loadComponent: () => import('./fiches-visees/fiches-visees').then((m) => m.FichesVisees),
+  },
 ];

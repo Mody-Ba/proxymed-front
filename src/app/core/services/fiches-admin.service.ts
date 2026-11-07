@@ -1,6 +1,6 @@
-import { HttpClient, HttpContext, HttpErrorResponse, HttpResponse } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpResponse } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { catchError, from, map, Observable, switchMap, throwError } from 'rxjs';
+import { catchError, map, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { ACCES_REFUSE_GERE_PAR_LA_PAGE } from '../interceptors/auth.interceptor';
 import { FichierTelecharge } from '../models/fiche-signee.model';
@@ -11,6 +11,7 @@ import {
   PatientIdentite,
   TypeVisite,
 } from '../models/fiches-admin.model';
+import { relireErreurBlob } from '../utils/erreur-blob';
 import { nomFichierDepuisEntete } from '../utils/fichier';
 
 /** Seuls champs lus dans PatientResponse : l'identite. */
@@ -87,32 +88,4 @@ export class FichesAdminService {
   private contexte(): HttpContext {
     return new HttpContext().set(ACCES_REFUSE_GERE_PAR_LA_PAGE, true);
   }
-}
-
-/** Erreur d'une requete en responseType blob : le corps JSON du serveur est relu. */
-export function relireErreurBlob(erreur: unknown): Observable<never> {
-  if (!(erreur instanceof HttpErrorResponse) || !(erreur.error instanceof Blob)) {
-    return throwError(() => erreur);
-  }
-  return from(erreur.error.text()).pipe(
-    catchError(() => throwError(() => erreur)),
-    switchMap((texte) => {
-      let corps: unknown = null;
-      try {
-        corps = JSON.parse(texte);
-      } catch {
-        corps = null;
-      }
-      return throwError(
-        () =>
-          new HttpErrorResponse({
-            error: corps,
-            headers: erreur.headers,
-            status: erreur.status,
-            statusText: erreur.statusText,
-            url: erreur.url ?? undefined,
-          }),
-      );
-    }),
-  );
 }

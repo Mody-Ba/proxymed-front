@@ -1,0 +1,119 @@
+@use '../../../shared/styles/tableau';
+
+@include tableau.cadre;
+
+// Tableau sans paginateur (resultats) : coins arrondis en bas aussi.
+.tableau-seul {
+  border-radius: var(--pm-rayon);
+}
+
+.encadre-haut {
+  display: block;
+  margin: 0 0 var(--pm-espace-4);
+}
+
+.reessayer {
+  margin-top: var(--pm-espace-2);
+}
+
+.resultats {
+  margin-bottom: var(--pm-espace-5, 32px);
+
+  .resume {
+    display: block;
+    margin-bottom: var(--pm-espace-3);
+  }
+}
+
+.sous-titre {
+  margin: 0 0 var(--pm-espace-2);
+  font: var(--mat-sys-title-medium);
+}
+
+.barre-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pm-espace-3);
+  margin-bottom: var(--pm-espace-3);
+}
+
+.compteur {
+  margin: 0;
+}
+
+.boutons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pm-espace-2);
+}
+
+.indicateur {
+  display: inline-block;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+.cellule-case {
+  width: 56px;
+}
+
+.cellule-nom {
+  overflow-wrap: anywhere;
+
+  .nom {
+    display: block;
+    font-weight: 500;
+  }
+
+  .dossier,
+  .reimport {
+    display: block;
+    color: var(--mat-sys-on-surface-variant);
+    font: var(--mat-sys-body-small);
+  }
+}
+
+.cellule-message {
+  overflow-wrap: anywhere;
+}
+
+.cellule-action {
+  white-space: nowrap;
+  text-align: right;
+}
+
+tr.ligne-cochee {
+  background: var(--mat-sys-secondary-container);
+}
+
+.statut {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.statut-visee,
+.statut-renvoyee {
+  color: var(--mat-sys-primary);
+}
+
+.statut-conflit {
+  color: var(--mat-sys-on-surface-variant);
+}
+
+.statut-erreur {
+  color: var(--mat-sys-error);
+}
+
+@media (max-width: 599.98px) {
+  .cellule-nom {
+    flex-wrap: wrap;
+
+    .nom,
+    .dossier,
+    .reimport {
+      text-align: right;
+    }
+  }
+}

@@ -1,0 +1,110 @@
+<section class="conteneur-page">
+  <app-entete-page
+    titre="Fiches visées"
+    sousTitre="Fiches déjà visées : téléchargez leur rapport (page de garde et scan signé)."
+    icone="verified"
+  >
+    <a mat-stroked-button routerLink="/senior/fiches">
+      <mat-icon fontIcon="fact_check" aria-hidden="true" />Fiches à viser
+    </a>
+  </app-entete-page>
+
+  @if (erreurTelechargement(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut erreur-telechargement">
+      <p>{{ message }}</p>
+    </app-encadre>
+  }
+
+  <div class="zone-progression">
+    @if (chargement()) {
+      <mat-progress-bar mode="indeterminate" aria-label="Chargement des fiches visées" />
+    }
+  </div>
+
+  @if (erreurChargement(); as message) {
+    <app-encadre type="erreur" role="alert" class="encadre-haut">
+      <p>{{ message }}</p>
+      <button mat-stroked-button type="button" class="reessayer" (click)="charger()">
+        <mat-icon fontIcon="refresh" aria-hidden="true" />Réessayer
+      </button>
+    </app-encadre>
+  } @else if (chargement() && !fiches().length) {
+    <p class="texte-aide">Chargement des fiches visées…</p>
+  } @else if (!total()) {
+    <app-etat-vide icone="verified" titre="Aucune fiche visée pour le moment." />
+  } @else {
+    <div class="tableau" [class.rafraichissement]="chargement()" [attr.aria-busy]="chargement()">
+      <table mat-table [dataSource]="fiches()">
+        <caption class="cdk-visually-hidden">
+          Fiches visées.
+        </caption>
+
+        <ng-container matColumnDef="patient">
+          <th mat-header-cell *matHeaderCellDef scope="col">Patient</th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Patient" class="cellule-nom">
+            <span class="nom">{{ fiche.nomPatient }}</span>
+            @if (fiche.numeroDossierProxymed) {
+              <span class="dossier">Dossier {{ fiche.numeroDossierProxymed }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="typeVisite">
+          <th mat-header-cell *matHeaderCellDef scope="col">Type de visite</th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Type de visite">
+            {{ libelleTypeVisite(fiche.typeVisite) }}
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="visa">
+          <th mat-header-cell *matHeaderCellDef scope="col">Visée</th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Visée" class="cellule-nom">
+            <span>{{
+              fiche.dateVisa ? (fiche.dateVisa | date: "dd/MM/yyyy 'à' HH:mm") : '—'
+            }}</span>
+            @if (fiche.nomSeniorVisa) {
+              <span class="dossier">par {{ fiche.nomSeniorVisa }}</span>
+            }
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="rapport">
+          <th mat-header-cell *matHeaderCellDef scope="col">
+            <span class="cdk-visually-hidden">Rapport</span>
+          </th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Rapport" class="cellule-action">
+            <button
+              mat-stroked-button
+              type="button"
+              class="bouton-rapport"
+              [disabled]="telechargement() !== null"
+              [attr.aria-busy]="telechargement() === fiche.visiteId"
+              [attr.aria-label]="'Télécharger le rapport de ' + fiche.nomPatient"
+              (click)="telechargerRapport(fiche.visiteId)"
+            >
+              @if (telechargement() === fiche.visiteId) {
+                <mat-spinner diameter="18" aria-hidden="true" class="indicateur" />
+              } @else {
+                <mat-icon fontIcon="description" aria-hidden="true" />
+              }
+              Télécharger le rapport
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="colonnes"></tr>
+        <tr mat-row *matRowDef="let fiche; columns: colonnes"></tr>
+      </table>
+    </div>
+
+    <mat-paginator
+      [length]="total()"
+      [pageIndex]="page()"
+      [pageSize]="taille()"
+      [pageSizeOptions]="taillesPage"
+      [disabled]="chargement()"
+      (page)="changerPage($event)"
+      aria-label="Pagination des fiches visées"
+    />
+  }
+</section>

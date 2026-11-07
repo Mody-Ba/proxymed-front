@@ -45,7 +45,14 @@ describe('BarreNavigation', () => {
   });
 
   it.each([
-    ['MEDECIN_SENIOR', [['Demandes', '/senior/demandes']]],
+    [
+      'MEDECIN_SENIOR',
+      [
+        ['Demandes', '/senior/demandes'],
+        ['Fiches à viser', '/senior/fiches'],
+        ['Fiches visées', '/senior/fiches-visees'],
+      ],
+    ],
     ['MEDECIN_JUNIOR', [['Demandes assignées', '/junior/demandes']]],
   ] as const)('montre au role %s ses seuls liens', (role, attendus) => {
     const liens = Array.from(afficher(role).querySelectorAll('.liens a')).map((a) => [

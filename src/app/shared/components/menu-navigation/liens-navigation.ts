@@ -17,7 +17,11 @@ export const LIENS_PAR_ROLE: Record<Role, readonly LienNavigation[]> = {
     { libelle: 'Nouvelle demande', lien: '/patient/nouvelle-demande', icone: 'note_add' },
     { libelle: 'Mes demandes', lien: '/patient/mes-demandes', icone: 'list_alt' },
   ],
-  MEDECIN_SENIOR: [{ libelle: 'Demandes', lien: '/senior/demandes', icone: 'inbox' }],
+  MEDECIN_SENIOR: [
+    { libelle: 'Demandes', lien: '/senior/demandes', icone: 'inbox' },
+    { libelle: 'Fiches à viser', lien: '/senior/fiches', icone: 'fact_check', exact: true },
+    { libelle: 'Fiches visées', lien: '/senior/fiches-visees', icone: 'verified' },
+  ],
   MEDECIN_JUNIOR: [
     { libelle: 'Demandes assignées', lien: '/junior/demandes', icone: 'assignment_ind' },
   ],
