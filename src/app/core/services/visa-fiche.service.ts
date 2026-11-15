@@ -7,6 +7,7 @@ import { FichierTelecharge } from '../models/fiche-signee.model';
 import { PageResponse } from '../models/page.model';
 import {
   DecisionLotResponse,
+  FicheAViserRequest,
   FicheAViserResponse,
   RenvoiLotRequest,
   StatutFicheSignee,
@@ -38,9 +39,16 @@ export class VisaFicheService {
     });
   }
 
-  /** POST /api/fiches-signees/visa : une transaction par fiche, toujours 200 si la requete est valide. */
-  viser(visiteIds: readonly string[]): Observable<DecisionLotResponse> {
-    const corps: VisaLotRequest = { visiteIds: [...visiteIds] };
+  /**
+   * POST /api/fiches-signees/visa : une transaction par fiche, toujours 200 si la requete est valide.
+   * La frequence n'est envoyee que si elle est choisie.
+   */
+  viser(fiches: readonly FicheAViserRequest[]): Observable<DecisionLotResponse> {
+    const corps: VisaLotRequest = {
+      fiches: fiches.map(({ visiteId, frequenceVisites }) =>
+        frequenceVisites ? { visiteId, frequenceVisites } : { visiteId },
+      ),
+    };
     return this.http.post<DecisionLotResponse>(`${this.url}/fiches-signees/visa`, corps, {
       context: this.contexte(),
     });

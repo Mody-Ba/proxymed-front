@@ -56,6 +56,18 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="frequence">
+          <th mat-header-cell *matHeaderCellDef scope="col">Fréquence des visites</th>
+          <td
+            mat-cell
+            *matCellDef="let fiche"
+            data-libelle="Fréquence des visites"
+            class="cellule-frequence"
+          >
+            {{ libelleFrequenceVisites(fiche.frequenceVisitesSenior) }}
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="visa">
           <th mat-header-cell *matHeaderCellDef scope="col">Visée</th>
           <td mat-cell *matCellDef="let fiche" data-libelle="Visée" class="cellule-nom">

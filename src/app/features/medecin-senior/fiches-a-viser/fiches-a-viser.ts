@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -15,7 +16,12 @@ import { FichierTelecharge } from '../../../core/models/fiche-signee.model';
 import { LIBELLES_TYPE_VISITE, TypeVisite } from '../../../core/models/fiches-admin.model';
 import {
   DecisionLotResponse,
+  FicheAViserRequest,
   FicheAViserResponse,
+  FREQUENCES_VISITES,
+  FrequenceVisites,
+  LIBELLE_FREQUENCE_NON_PRECISEE,
+  LIBELLES_FREQUENCE_VISITES,
   MAX_FICHES_DECISION,
   TAILLE_PAGE_FICHES,
 } from '../../../core/models/visa-fiche.model';
@@ -28,10 +34,12 @@ import {
   ajouterASelection,
   basculerSelection,
   erreurSelectionDecision,
+  frequenceDepuisSaisie,
   identitePatient,
   LigneDecision,
   lignesDecision,
   MESSAGE_SELECTION_FICHES_MAX,
+  recapitulatifFrequences,
   resumeDecision,
 } from '../../../core/utils/visa-fiches';
 import { Encadre } from '../../../shared/components/encadre/encadre';
@@ -41,6 +49,7 @@ import { DialogueRenvoiFiches } from '../dialogue-renvoi-fiches/dialogue-renvoi-
 import {
   DialogueVisaFiches,
   DonneesDecisionFiches,
+  DonneesVisaFiches,
 } from '../dialogue-visa-fiches/dialogue-visa-fiches';
 
 interface ResultatAction {
@@ -67,6 +76,7 @@ export function libelleTypeVisite(type: TypeVisite | undefined): string {
     MatButtonModule,
     MatCheckboxModule,
     MatIconModule,
+    MatInputModule,
     MatPaginatorModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
@@ -85,11 +95,21 @@ export class FichesAViser implements OnInit {
   private readonly dialogues = inject(MatDialog);
 
   protected readonly max = MAX_FICHES_DECISION;
-  protected readonly colonnes = ['selection', 'patient', 'typeVisite', 'dateImport', 'scan'];
+  protected readonly colonnes = [
+    'selection',
+    'patient',
+    'typeVisite',
+    'frequence',
+    'dateImport',
+    'scan',
+  ];
   protected readonly colonnesResultat = ['patient', 'statut', 'message', 'rapport'];
   protected readonly taillesPage = [10, 20, 50, 100];
   protected readonly identitePatient = identitePatient;
   protected readonly libelleTypeVisite = libelleTypeVisite;
+  protected readonly frequencesVisites = FREQUENCES_VISITES;
+  protected readonly libellesFrequence = LIBELLES_FREQUENCE_VISITES;
+  protected readonly libelleNonPrecisee = LIBELLE_FREQUENCE_NON_PRECISEE;
 
   protected readonly fiches = signal<FicheAViserResponse[]>([]);
   protected readonly total = signal(0);
@@ -100,6 +120,11 @@ export class FichesAViser implements OnInit {
 
   /** Selection conservee d'une page a l'autre : visiteId -> fiche (pour l'identite des resultats). */
   protected readonly selection = signal<ReadonlyMap<string, FicheAViserResponse>>(new Map());
+  /**
+   * Frequence choisie par fiche (visites initiales), conservee d'une page a l'autre comme la
+   * selection, tant que la page est ouverte. Absente : « Non précisée ».
+   */
+  protected readonly frequences = signal<ReadonlyMap<string, FrequenceVisites>>(new Map());
   protected readonly avertissement = signal<string | null>(null);
   protected readonly action = signal<ActionDecision | null>(null);
   protected readonly erreurAction = signal<string | null>(null);
@@ -193,6 +218,26 @@ export class FichesAViser implements OnInit {
     this.appliquerSelection(resultat.selection, resultat.ignores, page);
   }
 
+  /** Menu « Fréquence des visites » : seulement pour une visite INITIALE. */
+  protected avecFrequence(fiche: FicheAViserResponse): boolean {
+    return fiche.typeVisite === 'INITIALE';
+  }
+
+  protected frequence(fiche: FicheAViserResponse): FrequenceVisites | '' {
+    return this.frequences().get(fiche.visiteId) ?? '';
+  }
+
+  protected choisirFrequence(fiche: FicheAViserResponse, valeur: string): void {
+    const frequence = frequenceDepuisSaisie(valeur);
+    const suivante = new Map(this.frequences());
+    if (frequence && this.avecFrequence(fiche)) {
+      suivante.set(fiche.visiteId, frequence);
+    } else {
+      suivante.delete(fiche.visiteId);
+    }
+    this.frequences.set(suivante);
+  }
+
   protected viderSelection(): void {
     this.selection.set(new Map());
     this.avertissement.set(null);
@@ -203,16 +248,20 @@ export class FichesAViser implements OnInit {
     if (!this.verifierSelection(ids)) {
       return;
     }
+    const fiches = this.fichesAViser(ids);
+    const recapitulatif = recapitulatifFrequences(
+      fiches.map((f) => ({ ...f, typeVisite: this.selection().get(f.visiteId)?.typeVisite })),
+    );
     this.dialogues
-      .open<DialogueVisaFiches, DonneesDecisionFiches, boolean>(DialogueVisaFiches, {
-        data: { nombre: ids.length },
+      .open<DialogueVisaFiches, DonneesVisaFiches, boolean>(DialogueVisaFiches, {
+        data: { nombre: ids.length, recapitulatif },
         width: '480px',
         maxWidth: 'calc(100vw - 32px)',
       })
       .afterClosed()
       .subscribe((confirme) => {
         if (confirme) {
-          this.executer('visa', this.service.viser(ids));
+          this.executer('visa', this.service.viser(fiches));
         }
       });
   }
@@ -272,6 +321,16 @@ export class FichesAViser implements OnInit {
     return [...this.selection().keys()];
   }
 
+  /** Corps du visa : la frequence n'accompagne que les visites initiales ou elle a ete choisie. */
+  private fichesAViser(ids: readonly string[]): FicheAViserRequest[] {
+    return ids.map((visiteId) => {
+      const fiche = this.selection().get(visiteId);
+      const frequenceVisites =
+        fiche && this.avecFrequence(fiche) ? this.frequences().get(visiteId) : undefined;
+      return frequenceVisites ? { visiteId, frequenceVisites } : { visiteId };
+    });
+  }
+
   private verifierSelection(ids: string[]): boolean {
     if (this.occupe()) {
       return false;
@@ -310,6 +369,7 @@ export class FichesAViser implements OnInit {
             avecErreurs: reponse.nombreErreurs > 0,
             lignes: lignesDecision(reponse.resultats, fichesConnues),
           });
+          this.oublierFrequences(reponse);
           this.viderSelection();
           this.charger();
         },
@@ -326,5 +386,16 @@ export class FichesAViser implements OnInit {
         },
       }),
     );
+  }
+
+  /** Fiches visees : leur frequence n'a plus lieu d'etre gardee (les fiches refusees la gardent). */
+  private oublierFrequences(reponse: DecisionLotResponse): void {
+    const visees = reponse.resultats.filter((r) => r.resultat === 'VISEE').map((r) => r.visiteId);
+    if (!visees.some((id) => this.frequences().has(id))) {
+      return;
+    }
+    const suivante = new Map(this.frequences());
+    visees.forEach((id) => suivante.delete(id));
+    this.frequences.set(suivante);
   }
 }

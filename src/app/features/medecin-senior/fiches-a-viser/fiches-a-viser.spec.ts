@@ -10,6 +10,7 @@ import { authInterceptor } from '../../../core/interceptors/auth.interceptor';
 import { PageResponse } from '../../../core/models/page.model';
 import { DecisionLotResponse, FicheAViserResponse } from '../../../core/models/visa-fiche.model';
 import { MESSAGE_DECISION_CONFLIT, MESSAGE_DECISION_VISEE } from '../../../core/utils/visa-fiches';
+import { DonneesVisaFiches } from '../dialogue-visa-fiches/dialogue-visa-fiches';
 import { FichesAViser } from './fiches-a-viser';
 
 const API = `${environment.api.fiche1}/api/fiches-signees`;
@@ -31,17 +32,25 @@ function page(
   fiches: FicheAViserResponse[],
   total = fiches.length,
 ): PageResponse<FicheAViserResponse> {
-  return { elements: fiches, page: 0, taille: 20, totalElements: total, totalPages: 1 };
+  return {
+    elements: fiches,
+    page: 0,
+    taille: 20,
+    totalElements: total,
+    totalPages: Math.ceil(total / 20) || 1,
+  };
 }
 
 describe('FichesAViser', () => {
   let fixture: ComponentFixture<FichesAViser>;
   let http: HttpTestingController;
   let reponseDialogue: unknown;
+  let donneesDialogue: unknown;
   let element: HTMLElement;
 
   beforeEach(() => {
     reponseDialogue = true;
+    donneesDialogue = undefined;
     TestBed.configureTestingModule({
       imports: [FichesAViser],
       providers: [
@@ -51,7 +60,12 @@ describe('FichesAViser', () => {
         { provide: MATERIAL_ANIMATIONS, useValue: { animationsDisabled: true } },
         {
           provide: MatDialog,
-          useValue: { open: () => ({ afterClosed: () => of(reponseDialogue) }) },
+          useValue: {
+            open: (_composant: unknown, config: { data: unknown }) => {
+              donneesDialogue = config.data;
+              return { afterClosed: () => of(reponseDialogue) };
+            },
+          },
         },
       ],
     });
@@ -70,10 +84,30 @@ describe('FichesAViser', () => {
     fixture.detectChanges();
   }
 
-  function repondreListe(fiches: FicheAViserResponse[]): void {
+  function repondreListe(fiches: FicheAViserResponse[], total = fiches.length): void {
     const requete = http.expectOne((r) => r.url === API && r.method === 'GET');
     expect(requete.request.params.get('statut')).toBe('EN_ATTENTE');
-    requete.flush(page(fiches));
+    requete.flush(page(fiches, total));
+  }
+
+  function menus(): HTMLSelectElement[] {
+    return [...element.querySelectorAll<HTMLSelectElement>('select.menu-frequence')];
+  }
+
+  function choisir(menu: HTMLSelectElement, valeur: string): void {
+    menu.value = valeur;
+    menu.dispatchEvent(new Event('change'));
+    fixture.detectChanges();
+  }
+
+  async function pageSuivante(): Promise<void> {
+    (element.querySelector('.mat-mdc-paginator-navigation-next') as HTMLButtonElement).click();
+    await stabiliser();
+  }
+
+  async function pagePrecedente(): Promise<void> {
+    (element.querySelector('.mat-mdc-paginator-navigation-previous') as HTMLButtonElement).click();
+    await stabiliser();
   }
 
   function cocher(selecteur: string): void {
@@ -110,7 +144,10 @@ describe('FichesAViser', () => {
 
     const visa = http.expectOne(`${API}/visa`);
     expect(visa.request.method).toBe('POST');
-    expect(visa.request.body).toEqual({ visiteIds: ['v-1', 'v-2', 'v-3'] });
+    // Aucune frequence choisie : seule la visite est envoyee.
+    expect(visa.request.body).toEqual({
+      fiches: [{ visiteId: 'v-1' }, { visiteId: 'v-2' }, { visiteId: 'v-3' }],
+    });
     // Boutons desactives pendant l'appel.
     expect(bouton('bouton-viser').disabled).toBe(true);
     expect(bouton('bouton-renvoyer').disabled).toBe(true);
@@ -137,6 +174,137 @@ describe('FichesAViser', () => {
     expect(resultats[1].textContent).toContain(MESSAGE_DECISION_CONFLIT);
     expect(element.querySelectorAll('.resultats .bouton-rapport').length).toBe(2);
     expect(element.querySelector('.resume')!.textContent).toContain('2 visées, 1 non traitée');
+  });
+
+  it('menu « Fréquence des visites » pour les visites initiales seulement, Non précisée par défaut', async () => {
+    repondreListe([fiche(1), fiche(2)]);
+    await stabiliser();
+
+    const lignes = element.querySelectorAll('tr.mat-mdc-row');
+    expect(lignes[0].querySelector('select.menu-frequence')).toBeNull(); // routine
+    const menu = lignes[1].querySelector('select.menu-frequence') as HTMLSelectElement;
+    expect(menu).not.toBeNull();
+    expect(menus().length).toBe(1);
+    expect([...menu.options].map((o) => o.textContent!.trim())).toEqual([
+      'Non précisée',
+      'Hebdomadaire',
+      'Bimensuelle',
+      'Mensuelle',
+    ]);
+    expect(menu.value).toBe('');
+  });
+
+  it('la fréquence n’est envoyée que si elle est choisie, avec le récapitulatif au dialogue', async () => {
+    repondreListe([fiche(1), fiche(2), fiche(4)]);
+    await stabiliser();
+
+    choisir(menus()[0], 'MENSUELLE'); // v-2
+    cocher('.case-page');
+    bouton('bouton-viser').click();
+    fixture.detectChanges();
+
+    expect(donneesDialogue as DonneesVisaFiches).toEqual({
+      nombre: 3,
+      recapitulatif: [
+        'Mensuelle : 1 fiche',
+        'Non précisée : 1 fiche',
+        'Sans fréquence (visite de routine) : 1 fiche',
+      ],
+    });
+    const visa = http.expectOne(`${API}/visa`);
+    expect(visa.request.body).toEqual({
+      fiches: [
+        { visiteId: 'v-1' },
+        { visiteId: 'v-2', frequenceVisites: 'MENSUELLE' },
+        { visiteId: 'v-4' },
+      ],
+    });
+    // Menus desactives pendant l'appel.
+    expect(menus().every((m) => m.disabled)).toBe(true);
+    visa.flush({ nombreFiches: 3, nombreReussies: 3, nombreErreurs: 0, resultats: [] });
+    repondreListe([]);
+  });
+
+  it('revenir à « Non précisée » retire la fréquence du corps', async () => {
+    repondreListe([fiche(2)]);
+    await stabiliser();
+
+    choisir(menus()[0], 'HEBDOMADAIRE');
+    choisir(menus()[0], '');
+    cocher('.case-fiche');
+    bouton('bouton-viser').click();
+
+    const visa = http.expectOne(`${API}/visa`);
+    expect(visa.request.body).toEqual({ fiches: [{ visiteId: 'v-2' }] });
+    visa.flush({ nombreFiches: 1, nombreReussies: 1, nombreErreurs: 0, resultats: [] });
+    repondreListe([]);
+  });
+
+  it('le choix de fréquence survit au changement de page, comme la sélection', async () => {
+    repondreListe([fiche(1), fiche(2)], 40);
+    await stabiliser();
+    choisir(menus()[0], 'HEBDOMADAIRE'); // v-2, page 1
+    cocher('.case-page');
+
+    await pageSuivante();
+    repondreListe([fiche(3), fiche(4)], 40);
+    await stabiliser();
+    expect(menus()[0].value).toBe(''); // v-4 : rien de choisi
+    choisir(menus()[0], 'BIMENSUELLE');
+    cocher('.case-page');
+
+    await pagePrecedente();
+    repondreListe([fiche(1), fiche(2)], 40);
+    await stabiliser();
+    expect(menus()[0].value).toBe('HEBDOMADAIRE');
+    expect(element.querySelector('.compteur')!.textContent).toContain('4');
+
+    bouton('bouton-viser').click();
+    const visa = http.expectOne(`${API}/visa`);
+    expect(visa.request.body).toEqual({
+      fiches: [
+        { visiteId: 'v-1' },
+        { visiteId: 'v-2', frequenceVisites: 'HEBDOMADAIRE' },
+        { visiteId: 'v-3' },
+        { visiteId: 'v-4', frequenceVisites: 'BIMENSUELLE' },
+      ],
+    });
+    visa.flush({ nombreFiches: 4, nombreReussies: 4, nombreErreurs: 0, resultats: [] });
+    repondreListe([]);
+  });
+
+  it('fréquence refusée pour une visite de routine : message du serveur, les autres fiches passent', async () => {
+    repondreListe([fiche(1), fiche(2)]);
+    await stabiliser();
+    cocher('.case-page');
+    bouton('bouton-viser').click();
+
+    http.expectOne(`${API}/visa`).flush({
+      nombreFiches: 2,
+      nombreReussies: 1,
+      nombreErreurs: 1,
+      resultats: [
+        {
+          index: 0,
+          visiteId: 'v-1',
+          resultat: 'ERREUR',
+          code: 400,
+          erreur: 'Regle de gestion non respectee',
+          message: 'La frequence des visites ne se decide qu au visa d une visite initiale',
+        },
+        { index: 1, visiteId: 'v-2', resultat: 'VISEE', code: 200, statut: 'VISEE' },
+      ],
+    } satisfies DecisionLotResponse);
+    repondreListe([fiche(1)]);
+    await stabiliser();
+
+    const resultats = element.querySelectorAll('.resultats tr.mat-mdc-row');
+    expect(resultats[0].textContent).toContain('Refusée');
+    expect(resultats[0].textContent).toContain(
+      'La frequence des visites ne se decide qu au visa d une visite initiale',
+    );
+    expect(resultats[0].querySelector('.bouton-rapport')).toBeNull();
+    expect(resultats[1].textContent).toContain(MESSAGE_DECISION_VISEE);
   });
 
   it('renvoi en lot avec le motif du dialogue', async () => {
@@ -184,14 +352,14 @@ describe('FichesAViser', () => {
         status: 400,
         erreur: 'Validation echouee',
         message: 'Un ou plusieurs champs sont invalides',
-        details: ['visiteIds : au plus 50 fiches par requete'],
+        details: ['fiches : au plus 50 fiches par requete'],
       },
       { status: 400, statusText: 'Bad Request' },
     );
     await stabiliser();
 
     expect(element.querySelector('.erreur-action')!.textContent).toContain(
-      'Un ou plusieurs champs sont invalides : visiteIds : au plus 50 fiches par requete',
+      'Un ou plusieurs champs sont invalides : fiches : au plus 50 fiches par requete',
     );
   });
 

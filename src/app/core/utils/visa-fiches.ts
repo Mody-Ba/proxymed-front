@@ -1,5 +1,9 @@
 import {
   FicheAViserResponse,
+  FREQUENCES_VISITES,
+  FrequenceVisites,
+  LIBELLE_FREQUENCE_NON_PRECISEE,
+  LIBELLES_FREQUENCE_VISITES,
   MAX_FICHES_DECISION,
   MOTIF_RENVOI_MAX,
   RESULTAT_DECISION_ERREUR,
@@ -46,12 +50,13 @@ export function erreurSelectionDecision(
 
 export type ActionDecision = 'visa' | 'renvoi';
 
-export type StatutDecision = 'visee' | 'renvoyee' | 'conflit' | 'erreur';
+export type StatutDecision = 'visee' | 'renvoyee' | 'conflit' | 'refusee' | 'erreur';
 
 export const LIBELLES_STATUT_DECISION: Record<StatutDecision, string> = {
   visee: 'Visée',
   renvoyee: 'Renvoyée',
   conflit: 'Déjà traitée',
+  refusee: 'Refusée',
   erreur: 'Erreur',
 };
 
@@ -61,6 +66,9 @@ export const MESSAGE_DECISION_RENVOYEE =
 export const MESSAGE_DECISION_CONFLIT =
   'Cette fiche n’est plus en attente : elle a déjà été visée ou renvoyée, peut-être par un autre médecin.';
 export const MESSAGE_DECISION_INTROUVABLE = 'Cette fiche est introuvable.';
+/** Repli si le serveur ne donne pas de message pour une fiche refusee (400). */
+export const MESSAGE_DECISION_FREQUENCE_REFUSEE =
+  'La fréquence des visites ne se décide qu’au visa d’une visite initiale : cette fiche n’a pas été visée.';
 export const MESSAGE_DECISION_ERREUR_INTERNE =
   'Le traitement de cette fiche a échoué pour une raison imprévue. Réessayez plus tard.';
 
@@ -71,10 +79,17 @@ export function statutDecision(resultat: ResultatDecisionResponse): StatutDecisi
   if (resultat.resultat === 'RENVOYEE') {
     return 'renvoyee';
   }
-  return resultat.code === 409 ? 'conflit' : 'erreur';
+  if (resultat.code === 409) {
+    return 'conflit';
+  }
+  // 400 par fiche : frequence des visites envoyee pour une visite de ROUTINE.
+  return resultat.code === 400 ? 'refusee' : 'erreur';
 }
 
-/** Message d'une ligne du resultat (traduit d'apres le code, jamais le message brut avec ses ids). */
+/**
+ * Message d'une ligne du resultat, traduit d'apres le code. Seule exception : la fiche refusee (400)
+ * affiche le message du serveur, qui explique la regle.
+ */
 export function messageResultatDecision(resultat: ResultatDecisionResponse): string {
   switch (statutDecision(resultat)) {
     case 'visee':
@@ -83,6 +98,8 @@ export function messageResultatDecision(resultat: ResultatDecisionResponse): str
       return MESSAGE_DECISION_RENVOYEE;
     case 'conflit':
       return MESSAGE_DECISION_CONFLIT;
+    case 'refusee':
+      return resultat.message?.trim() || MESSAGE_DECISION_FREQUENCE_REFUSEE;
   }
   if (resultat.resultat === RESULTAT_DECISION_ERREUR && resultat.code === 404) {
     return MESSAGE_DECISION_INTROUVABLE;
@@ -140,4 +157,37 @@ export function resumeDecision(
   const verbe = action === 'visa' ? 'visée' : 'renvoyée';
   const fiches = `${total} fiche${total > 1 ? 's' : ''} traitée${total > 1 ? 's' : ''}`;
   return `${fiches} : ${ok} ${verbe}${ok > 1 ? 's' : ''}, ${ko} non traitée${ko > 1 ? 's' : ''}.`;
+}
+
+/** Libelle de la frequence des visites, ou « Non précisée ». */
+export function libelleFrequenceVisites(frequence: FrequenceVisites | null | undefined): string {
+  return frequence ? LIBELLES_FREQUENCE_VISITES[frequence] : LIBELLE_FREQUENCE_NON_PRECISEE;
+}
+
+/** Valeur lue dans le menu deroulant : "" (Non précisée) ou une valeur inconnue donnent null. */
+export function frequenceDepuisSaisie(valeur: string | null | undefined): FrequenceVisites | null {
+  return FREQUENCES_VISITES.find((f) => f === valeur) ?? null;
+}
+
+export const LIBELLE_RECAP_SANS_FREQUENCE = 'Sans fréquence (visite de routine)';
+
+export interface FicheRecapFrequence {
+  typeVisite?: FicheAViserResponse['typeVisite'];
+  frequenceVisites?: FrequenceVisites;
+}
+
+/**
+ * Recapitulatif des frequences pour la confirmation du visa : nombre de visites initiales par
+ * frequence choisie (ou non precisee), puis les fiches sans menu (routine). Lignes a 0 omises.
+ */
+export function recapitulatifFrequences(fiches: readonly FicheRecapFrequence[]): string[] {
+  const initiales = fiches.filter((f) => f.typeVisite === 'INITIALE');
+  const lignes: [string, number][] = [...FREQUENCES_VISITES, null].map((frequence) => [
+    libelleFrequenceVisites(frequence),
+    initiales.filter((f) => (f.frequenceVisites ?? null) === frequence).length,
+  ]);
+  lignes.push([LIBELLE_RECAP_SANS_FREQUENCE, fiches.length - initiales.length]);
+  return lignes
+    .filter(([, nombre]) => nombre > 0)
+    .map(([libelle, nombre]) => `${libelle} : ${nombre} fiche${nombre > 1 ? 's' : ''}`);
 }
