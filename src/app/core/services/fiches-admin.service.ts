@@ -7,6 +7,7 @@ import { FichierTelecharge } from '../models/fiche-signee.model';
 import {
   ImportLotResponse,
   ImpressionFichesRequest,
+  ImpressionLotRequest,
   PARTIE_FICHIERS_LOT,
   PatientIdentite,
   TypeVisite,
@@ -31,6 +32,7 @@ interface PatientResponseIdentite {
 export class FichesAdminService {
   private readonly http = inject(HttpClient);
   private readonly url = `${environment.api.fiche1}/api`;
+  private readonly urlSuivi = `${environment.api.fiche2}/api`;
 
   /** GET /api/patients (liste complete, non paginee par le serveur), reduite a l'identite. */
   listerPatients(): Observable<PatientIdentite[]> {
@@ -56,18 +58,37 @@ export class FichesAdminService {
     const corps: ImpressionFichesRequest = {
       fiches: patientIds.map((patientId) => ({ patientId, typeVisite })),
     };
+    return this.telechargerPdf(`${this.url}/visites/impression`, corps, 'fiches.pdf');
+  }
+
+  /**
+   * Fiche 2 (service de suivi) : POST /api/visites/impression-lot, une fiche de routine vierge
+   * par numero de dossier PROXYMED, un seul PDF combine. Tout ou rien ; en 404, "details"
+   * liste les numeros introuvables.
+   */
+  imprimerRoutine(numerosDossierProxymed: readonly string[]): Observable<FichierTelecharge> {
+    const corps: ImpressionLotRequest = { numerosDossierProxymed: [...numerosDossierProxymed] };
+    return this.telechargerPdf(
+      `${this.urlSuivi}/visites/impression-lot`,
+      corps,
+      'fiches-suivi.pdf',
+    );
+  }
+
+  /** PDF en Blob ; le corps d'erreur (Blob) est relu en JSON pour afficher le message du serveur. */
+  private telechargerPdf(
+    url: string,
+    corps: unknown,
+    nomParDefaut: string,
+  ): Observable<FichierTelecharge> {
     return this.http
-      .post(`${this.url}/visites/impression`, corps, {
-        responseType: 'blob',
-        observe: 'response',
-        context: this.contexte(),
-      })
+      .post(url, corps, { responseType: 'blob', observe: 'response', context: this.contexte() })
       .pipe(
         map((reponse: HttpResponse<Blob>) => ({
           contenu: reponse.body ?? new Blob([], { type: 'application/pdf' }),
           nomFichier: nomFichierDepuisEntete(
             reponse.headers.get('Content-Disposition'),
-            'fiches.pdf',
+            nomParDefaut,
           ),
         })),
         catchError((erreur: unknown) => relireErreurBlob(erreur)),

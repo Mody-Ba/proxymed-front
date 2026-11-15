@@ -206,6 +206,24 @@ export function messageImpressionFiches(erreur: unknown): string {
   return messageErreur(erreur, 'Les fiches n’ont pas pu être imprimées. Réessayez.');
 }
 
+/**
+ * Impression des fiches de routine (Fiche 2) : en 404, "details" liste les numeros de dossier
+ * absents de la Fiche 2 ; les autres cas suivent l'impression de la Fiche 1.
+ */
+export function messageImpressionRoutine(erreur: unknown): string {
+  if (erreur instanceof HttpErrorResponse && erreur.status === 404) {
+    const introuvables = detailsErreur(erreur);
+    if (introuvables.length) {
+      return `Ces patients n’existent pas dans la Fiche 2 : ${introuvables.join(', ')}. Aucune fiche n’a été créée.`;
+    }
+    return messageErreur(
+      erreur,
+      'Un patient sélectionné n’existe pas dans la Fiche 2 : aucune fiche n’a été créée.',
+    );
+  }
+  return messageImpressionFiches(erreur);
+}
+
 /** Import en lot refuse en entier (400, 401, 403, 413, 415 en JSON). */
 export function messageImportLot(erreur: unknown): string {
   if (erreur instanceof HttpErrorResponse) {

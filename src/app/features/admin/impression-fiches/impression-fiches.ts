@@ -11,7 +11,8 @@ import { MatPaginatorIntl, MatPaginatorModule, PageEvent } from '@angular/materi
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
-import { Subscription } from 'rxjs';
+import { Observable, Subscription } from 'rxjs';
+import { FichierTelecharge } from '../../../core/models/fiche-signee.model';
 import {
   LIBELLES_TYPE_VISITE,
   MAX_FICHES_IMPRESSION,
@@ -19,7 +20,11 @@ import {
   TypeVisite,
 } from '../../../core/models/fiches-admin.model';
 import { FichesAdminService } from '../../../core/services/fiches-admin.service';
-import { messageErreur, messageImpressionFiches } from '../../../core/utils/erreur-http';
+import {
+  messageErreur,
+  messageImpressionFiches,
+  messageImpressionRoutine,
+} from '../../../core/utils/erreur-http';
 import {
   ajouterASelection,
   basculerSelection,
@@ -40,6 +45,16 @@ export function messageImpressionReussie(nombre: number): string {
   return nombre > 1
     ? `${nombre} fiches ont été créées et réunies dans un seul PDF, téléchargé sur votre appareil.`
     : 'La fiche a été créée et téléchargée sur votre appareil.';
+}
+
+export function messageSansNumeroDossier(noms: readonly string[]): string {
+  return noms.length > 1
+    ? `Ces patients n’ont pas de numéro de dossier PROXYMED : ${noms.join(', ')}. Retirez-les de la sélection pour imprimer une fiche de routine.`
+    : `Ce patient n’a pas de numéro de dossier PROXYMED : ${noms[0]}. Retirez-le de la sélection pour imprimer une fiche de routine.`;
+}
+
+export function messageNumerosEnDouble(numeros: readonly string[]): string {
+  return `Plusieurs patients sélectionnés partagent le même numéro de dossier : ${numeros.join(', ')}. Ne gardez qu’un patient par numéro.`;
 }
 
 function normaliser(texte: string): string {
@@ -207,22 +222,46 @@ export class ImpressionFiches implements OnInit {
     if (!type || !this.selection().size || this.impression()) {
       return;
     }
-    // Ordre des fiches dans le PDF : celui de la liste affichee.
-    const ids = this.patients()
-      .map((p) => p.id)
-      .filter((id) => this.selection().has(id));
+    // Ordre des fiches dans le PDF : celui de la liste affichee (toujours celle de la Fiche 1).
+    const choisis = this.patients().filter((p) => this.selection().has(p.id));
+    let appel: Observable<FichierTelecharge>;
+    if (type === 'ROUTINE') {
+      // Fiche 2 : identifiee par le numero de dossier PROXYMED, jamais par l'id de la Fiche 1.
+      const sansNumero = choisis.filter((p) => !p.numeroDossierProxymed?.trim());
+      if (sansNumero.length) {
+        this.message.set({
+          type: 'erreur',
+          texte: messageSansNumeroDossier(sansNumero.map((p) => p.nomComplet)),
+        });
+        return;
+      }
+      const numeros = choisis.map((p) => p.numeroDossierProxymed!.trim());
+      const doublons = [...new Set(numeros.filter((n, i) => numeros.indexOf(n) !== i))];
+      if (doublons.length) {
+        this.message.set({ type: 'erreur', texte: messageNumerosEnDouble(doublons) });
+        return;
+      }
+      appel = this.service.imprimerRoutine(numeros);
+    } else {
+      appel = this.service.imprimer(
+        choisis.map((p) => p.id),
+        type,
+      );
+    }
+    const nombre = choisis.length;
+    const messageEchec = type === 'ROUTINE' ? messageImpressionRoutine : messageImpressionFiches;
     this.message.set(null);
     this.impression.set(true);
-    this.impressionEnCours = this.service.imprimer(ids, type).subscribe({
+    this.impressionEnCours = appel.subscribe({
       next: (fichier) => {
         this.impression.set(false);
         enregistrerFichier(fichier.contenu, fichier.nomFichier);
-        this.message.set({ type: 'succes', texte: messageImpressionReussie(ids.length) });
+        this.message.set({ type: 'succes', texte: messageImpressionReussie(nombre) });
         this.viderSelection();
       },
       error: (erreur: unknown) => {
         this.impression.set(false);
-        this.message.set({ type: 'erreur', texte: messageImpressionFiches(erreur) });
+        this.message.set({ type: 'erreur', texte: messageEchec(erreur) });
       },
     });
   }

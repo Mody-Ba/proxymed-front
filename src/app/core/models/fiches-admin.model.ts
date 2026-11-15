@@ -31,7 +31,15 @@ export interface ImpressionFichesRequest {
   fiches: VisiteViergeRequest[];
 }
 
-/** ImpressionFichesRequest.MAX_FICHES. */
+/**
+ * ImpressionLotRequest du service de suivi (Fiche 2, POST /api/visites/impression-lot) : un
+ * numero de dossier PROXYMED par fiche de routine, sans doublon, 50 au plus.
+ */
+export interface ImpressionLotRequest {
+  numerosDossierProxymed: string[];
+}
+
+/** ImpressionFichesRequest.MAX_FICHES (Fiche 1) et ImpressionLotRequest.MAX_FICHES (Fiche 2). */
 export const MAX_FICHES_IMPRESSION = 50;
 
 /** En-tete expose par le CORS : ids des visites creees, dans l'ordre des fiches. */
