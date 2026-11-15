@@ -9,14 +9,18 @@ import {
   basculerSelection,
   erreurMotifRenvoi,
   erreurSelectionDecision,
+  frequenceDepuisSaisie,
+  libelleFrequenceVisites,
   lignesDecision,
   MESSAGE_DECISION_CONFLIT,
+  MESSAGE_DECISION_FREQUENCE_REFUSEE,
   MESSAGE_DECISION_INTROUVABLE,
   MESSAGE_DECISION_RENVOYEE,
   MESSAGE_DECISION_VISEE,
   MESSAGE_MOTIF_OBLIGATOIRE,
   MESSAGE_MOTIF_TROP_LONG,
   MESSAGE_SELECTION_FICHES_MAX,
+  recapitulatifFrequences,
   resumeDecision,
 } from './visa-fiches';
 
@@ -135,5 +139,50 @@ describe('Resultats mixtes du visa ou du renvoi', () => {
     expect(resumeDecision('renvoi', { nombreFiches: 1, nombreReussies: 1, nombreErreurs: 0 })).toBe(
       '1 fiche traitée : 1 renvoyée, 0 non traitée.',
     );
+  });
+});
+
+describe('Frequence des visites', () => {
+  it('libelles francais, « Non précisée » sans valeur', () => {
+    expect(libelleFrequenceVisites('HEBDOMADAIRE')).toBe('Hebdomadaire');
+    expect(libelleFrequenceVisites('BIMENSUELLE')).toBe('Bimensuelle');
+    expect(libelleFrequenceVisites('MENSUELLE')).toBe('Mensuelle');
+    expect(libelleFrequenceVisites(undefined)).toBe('Non précisée');
+  });
+
+  it('lit la saisie du menu : "" ou valeur inconnue donnent null', () => {
+    expect(frequenceDepuisSaisie('MENSUELLE')).toBe('MENSUELLE');
+    expect(frequenceDepuisSaisie('')).toBeNull();
+    expect(frequenceDepuisSaisie('QUOTIDIENNE')).toBeNull();
+  });
+
+  it('recapitule les frequences choisies, lignes a 0 omises', () => {
+    expect(
+      recapitulatifFrequences([
+        { typeVisite: 'INITIALE', frequenceVisites: 'HEBDOMADAIRE' },
+        { typeVisite: 'INITIALE', frequenceVisites: 'HEBDOMADAIRE' },
+        { typeVisite: 'INITIALE' },
+        { typeVisite: 'ROUTINE' },
+      ]),
+    ).toEqual([
+      'Hebdomadaire : 2 fiches',
+      'Non précisée : 1 fiche',
+      'Sans fréquence (visite de routine) : 1 fiche',
+    ]);
+  });
+
+  it('frequence refusee (400) : message du serveur, ou message de repli', () => {
+    const [avecMessage, sansMessage] = lignesDecision(
+      [
+        { index: 0, visiteId: 'v-1', resultat: 'ERREUR', code: 400, message: 'Visite de routine' },
+        { index: 1, visiteId: 'v-2', resultat: 'ERREUR', code: 400 },
+      ],
+      new Map(),
+    );
+    expect(avecMessage.statut).toBe('refusee');
+    expect(avecMessage.libelleStatut).toBe('Refusée');
+    expect(avecMessage.message).toBe('Visite de routine');
+    expect(avecMessage.rapport).toBe(false);
+    expect(sansMessage.message).toBe(MESSAGE_DECISION_FREQUENCE_REFUSEE);
   });
 });

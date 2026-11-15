@@ -206,6 +206,37 @@
           </td>
         </ng-container>
 
+        <ng-container matColumnDef="frequence">
+          <th mat-header-cell *matHeaderCellDef scope="col">Fréquence des visites</th>
+          <td mat-cell *matCellDef="let fiche" data-libelle="Fréquence des visites">
+            @if (avecFrequence(fiche)) {
+              <mat-form-field
+                appearance="outline"
+                subscriptSizing="dynamic"
+                class="champ-frequence"
+              >
+                <mat-label>Fréquence des visites</mat-label>
+                <select
+                  matNativeControl
+                  class="menu-frequence"
+                  [attr.aria-label]="'Fréquence des visites de ' + fiche.nomPatient"
+                  [disabled]="occupe()"
+                  (change)="choisirFrequence(fiche, $any($event.target).value)"
+                >
+                  <option value="">{{ libelleNonPrecisee }}</option>
+                  @for (valeur of frequencesVisites; track valeur) {
+                    <option [value]="valeur" [selected]="frequence(fiche) === valeur">
+                      {{ libellesFrequence[valeur] }}
+                    </option>
+                  }
+                </select>
+              </mat-form-field>
+            } @else {
+              <span class="sans-frequence">—</span>
+            }
+          </td>
+        </ng-container>
+
         <ng-container matColumnDef="dateImport">
           <th mat-header-cell *matHeaderCellDef scope="col">Importée le</th>
           <td mat-cell *matCellDef="let fiche" data-libelle="Importée le">

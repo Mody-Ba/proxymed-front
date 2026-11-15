@@ -1,3 +1,5 @@
+import { FrequenceVisites } from './visa-fiche.model';
+
 /**
  * POST /api/fiches-signees/import (repond 201) et GET /api/patients/{patientId}/fiches-signees.
  * Metadonnees uniquement : le contenu du fichier n'est jamais renvoye ici. patientId et
@@ -11,6 +13,8 @@ export interface FicheSigneeResponse {
   nomFichier: string;
   tailleOctets: number;
   dateImport: string;
+  /** Seulement si le senior l'a decidee au visa (absente sinon). */
+  frequenceVisitesSenior?: FrequenceVisites;
 }
 
 /** Nom de la partie multipart attendue par le serveur (@RequestPart("fichier")). */

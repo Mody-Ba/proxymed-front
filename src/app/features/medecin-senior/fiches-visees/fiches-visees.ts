@@ -13,6 +13,7 @@ import { FicheAViserResponse, TAILLE_PAGE_FICHES } from '../../../core/models/vi
 import { VisaFicheService } from '../../../core/services/visa-fiche.service';
 import { messageDecisionFiches, messageTelechargementVisa } from '../../../core/utils/erreur-http';
 import { enregistrerFichier } from '../../../core/utils/fichier';
+import { libelleFrequenceVisites } from '../../../core/utils/visa-fiches';
 import { PaginateurFrancais } from '../../../core/utils/paginateur-francais';
 import { Encadre } from '../../../shared/components/encadre/encadre';
 import { EntetePage } from '../../../shared/components/entete-page/entete-page';
@@ -43,9 +44,10 @@ import { libelleTypeVisite } from '../fiches-a-viser/fiches-a-viser';
 export class FichesVisees implements OnInit {
   private readonly service = inject(VisaFicheService);
 
-  protected readonly colonnes = ['patient', 'typeVisite', 'visa', 'rapport'];
+  protected readonly colonnes = ['patient', 'typeVisite', 'frequence', 'visa', 'rapport'];
   protected readonly taillesPage = [10, 20, 50, 100];
   protected readonly libelleTypeVisite = libelleTypeVisite;
+  protected readonly libelleFrequenceVisites = libelleFrequenceVisites;
 
   protected readonly fiches = signal<FicheAViserResponse[]>([]);
   protected readonly total = signal(0);

@@ -8,6 +8,24 @@ import { TypeVisite } from './fiches-admin.model';
 /** Enum StatutFicheSignee du serveur. */
 export type StatutFicheSignee = 'EN_ATTENTE' | 'VISEE' | 'RENVOYEE';
 
+/** Enum FrequenceVisites du serveur : decidee par le senior au visa d'une visite INITIALE. */
+export type FrequenceVisites = 'HEBDOMADAIRE' | 'BIMENSUELLE' | 'MENSUELLE';
+
+/** Ordre d'affichage des options du menu. */
+export const FREQUENCES_VISITES: readonly FrequenceVisites[] = [
+  'HEBDOMADAIRE',
+  'BIMENSUELLE',
+  'MENSUELLE',
+];
+
+export const LIBELLES_FREQUENCE_VISITES: Record<FrequenceVisites, string> = {
+  HEBDOMADAIRE: 'Hebdomadaire',
+  BIMENSUELLE: 'Bimensuelle',
+  MENSUELLE: 'Mensuelle',
+};
+
+export const LIBELLE_FREQUENCE_NON_PRECISEE = 'Non précisée';
+
 /** FicheAViserResponse (champs nuls omis par le serveur). */
 export interface FicheAViserResponse {
   ficheId: string;
@@ -22,11 +40,19 @@ export interface FicheAViserResponse {
   nomSeniorVisa?: string;
   dateVisa?: string;
   motifRenvoi?: string;
+  /** Fiche VISEE d'une visite INITIALE, si le senior l'a precisee au visa. */
+  frequenceVisitesSenior?: FrequenceVisites;
 }
 
-/** VisaLotRequest. */
+/** VisaLotRequest.Fiche : frequence facultative, refusee par le serveur pour une visite de ROUTINE. */
+export interface FicheAViserRequest {
+  visiteId: string;
+  frequenceVisites?: FrequenceVisites;
+}
+
+/** VisaLotRequest : {"fiches":[{"visiteId":"...","frequenceVisites":"HEBDOMADAIRE"},{"visiteId":"..."}]}. */
 export interface VisaLotRequest {
-  visiteIds: string[];
+  fiches: FicheAViserRequest[];
 }
 
 /** RenvoiLotRequest. */
@@ -46,7 +72,10 @@ export const TAILLE_PAGE_FICHES = 20;
 
 export const RESULTAT_DECISION_ERREUR = 'ERREUR';
 
-/** ResultatDecisionResponse : resultat VISEE / RENVOYEE (code 200) ou ERREUR (404, 409, 500). */
+/**
+ * ResultatDecisionResponse : resultat VISEE / RENVOYEE (code 200) ou ERREUR (400 frequence pour une
+ * visite de ROUTINE, 404, 409, 500).
+ */
 export interface ResultatDecisionResponse {
   index: number;
   visiteId: string;

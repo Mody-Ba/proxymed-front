@@ -7,6 +7,11 @@ export interface DonneesDecisionFiches {
   nombre: number;
 }
 
+/** Visa : en plus du nombre, le recapitulatif des frequences choisies (recapitulatifFrequences). */
+export interface DonneesVisaFiches extends DonneesDecisionFiches {
+  recapitulatif: readonly string[];
+}
+
 export function texteConfirmationVisa(nombre: number): string {
   return nombre > 1
     ? `Vous allez viser ${nombre} fiches. Chaque visa est enregistré à votre nom.`
@@ -21,6 +26,14 @@ export function texteConfirmationVisa(nombre: number): string {
     <h2 mat-dialog-title>Viser la sélection</h2>
     <mat-dialog-content>
       <p class="contexte texte-confirmation">{{ texte }}</p>
+      @if (donnees.recapitulatif.length) {
+        <p class="contexte">Fréquence des visites :</p>
+        <ul class="recapitulatif-frequences">
+          @for (ligne of donnees.recapitulatif; track ligne) {
+            <li>{{ ligne }}</li>
+          }
+        </ul>
+      }
     </mat-dialog-content>
     <mat-dialog-actions align="end">
       <button mat-button type="button" [mat-dialog-close]="false">Annuler</button>
@@ -40,6 +53,6 @@ export function texteConfirmationVisa(nombre: number): string {
   styleUrl: '../../../shared/styles/dialogue.scss',
 })
 export class DialogueVisaFiches {
-  protected readonly donnees = inject<DonneesDecisionFiches>(MAT_DIALOG_DATA);
+  protected readonly donnees = inject<DonneesVisaFiches>(MAT_DIALOG_DATA);
   protected readonly texte = texteConfirmationVisa(this.donnees.nombre);
 }
